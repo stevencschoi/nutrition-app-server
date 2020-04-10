@@ -1,0 +1,1 @@
+INSERT INTO users (username, name, email, password, avatar) VALUES ()
