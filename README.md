@@ -1,6 +1,6 @@
 # Project Title
 
-One Paragraph of project description goes here
+This server connects Vegtable's front-end interface to the local db
 
 ## Getting Started
 
@@ -20,8 +20,6 @@ Give examples
 ```
 
 ### Installing
-
-A step by step series of examples that tell you how to get a development env running
 
 Initialize database
 
@@ -45,16 +43,9 @@ npm install
 
 ## Usage
 
-End with an example of getting some data out of the system or using it for a little demo
-How to run the app
-
 ```
 npm run start
 ```
-
-## Running the tests
-
-Explain how to run the automated tests for this system
 
 ## Development
 
@@ -65,8 +56,6 @@ work in feature branch
 push up and make pull request
 
 ## Deployment
-
-Add additional notes about how to deploy this on a live system
 
 ```
 git push heroku master
@@ -84,16 +73,6 @@ We use [SemVer](http://semver.org/) for versioning. For the versions available, 
 
 ## Authors
 
-- **Billie Thompson** - _Initial work_ - [PurpleBooth](https://github.com/PurpleBooth)
+- Steven Choi - [GitHub](https://github.com/stevencschoi)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-- Hat tip to anyone whose code was used
-- Inspiration
-- etc
+See also the list of [contributors](https://github.com/stevencschoi/nutrition-app-server/contributors) who participated in this project.
