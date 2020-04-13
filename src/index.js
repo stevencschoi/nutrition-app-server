@@ -24,7 +24,7 @@ const dbParams = require("../lib/db.js");
 const db = new Pool(dbParams);
 db.connect();
 
-const databaseHelperFunctions = require("../routes/database")(db);
+const databaseHelperFunctions = require("../routes/helpers")(db);
 
 // Using cookies to maintain logged in state
 
