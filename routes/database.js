@@ -1,5 +1,16 @@
 module.exports = (db) => {
   // *********** HELPER FUNCTIONS FOR USER ROUTES ************
+  const register = function () {
+    return db
+      .query(
+        `INSERT INTO users (username, name, email, password, avatar)
+    VALUES ($1, $2, $3, $4, $5)`,
+        [username, name, email, password, avatar]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
   const login = function (userId) {
     return db
       .query(
@@ -9,7 +20,8 @@ module.exports = (db) => {
       `,
         [userId]
       )
-      .then((res) => res.rows);
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
   };
 
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
@@ -23,7 +35,8 @@ module.exports = (db) => {
       `,
         [userId]
       )
-      .then((res) => res.rows);
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
   };
 
   const addToFavourites = function (userId, recipeId) {
@@ -134,20 +147,21 @@ module.exports = (db) => {
       .catch((error) => console.error(error));
   };
 
-  const deleteFromSlot = function (slotId) {
+  const deleteFromSlot = function (slotId, dateId) {
     return db
       .query(
         `
     DELETE FROM slots
-    WHERE slots.id = $1;
+    WHERE slots.id = $1 AND date_id = $2;
       `,
-        [slotId]
+        [slotId, dateId]
       )
       .then((res) => res.rows)
       .catch((err) => console.error(err));
   };
 
   return {
+    register,
     login,
     getFavourites,
     addToFavourites,
