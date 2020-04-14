@@ -39,19 +39,19 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addToFavourites = function (userId, recipeId) {
-    console.log(`userId ${userId}, recipeId  ${recipeId}`);
+  const addToFavourites = function (userId, recipeName) {
+    console.log(`userId ${userId}, recipeName  ${recipeName}`);
     return db
       .query(
         `
-      INSERT INTO favourites (user_id, recipe_id)
+      INSERT INTO favourites (user_id, recipe_name)
       VALUES ($1, $2)
       RETURNING *;
       `,
-        [userId, recipeId]
+        [userId, recipeName]
       )
       .then((res) => {
-        console.log(res.rows);
+        console.log("addToFavourites function",res.rows);
         res.rows;
       })
       .catch((err) => {
@@ -61,10 +61,10 @@ module.exports = (db) => {
             `
                 DELETE FROM favourites
                 WHERE
-                user_id = $1 AND recipe_id = $2
+                user_id = $1 AND recipe_name = $2
                 RETURNING *;
               `,
-            [userId, recipeId]
+            [userId, recipeName]
           );
         }
       });

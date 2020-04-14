@@ -65,12 +65,12 @@ app.put("/register", function (req, res) {
 });
 
 app.post("/login", (req, res) => {
-  console.log("THis", req.body)
+  // console.log("THis", req.body)
   const { userId } = req.body;
   databaseHelperFunctions
     .login(userId)
     .then((user) => {
-      // console.log(user[0].id);
+      console.log(user[0].id);
       req.session.userId = user[0].id;
       res.json(user[0]);
     })
@@ -96,10 +96,10 @@ app.get("/favourites", (req, res) => {
 
 app.post("/addToFavourites", function (req, res) {
   const { userId } = req.session;
-  const { recipeId } = req.body;
+  const { recipeName } = req.body;
 
   databaseHelperFunctions
-    .addToFavourites(userId, recipeId)
+    .addToFavourites(userId, recipeName)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
