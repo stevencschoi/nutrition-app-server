@@ -16,7 +16,7 @@ module.exports = (db) => {
       .query(
         `
       SELECT * FROM users
-      WHERE id = $1
+      WHERE username = $1
       `,
         [userId]
       )
