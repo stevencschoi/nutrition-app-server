@@ -30,7 +30,6 @@ module.exports = (db) => {
       .query(
         `
       SELECT * FROM favourites
-      JOIN favourites ON users.id = user_id
       WHERE favourites.user_id = $1
       `,
         [userId]
