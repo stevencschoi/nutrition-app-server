@@ -30,7 +30,8 @@ wss.on("connection", (socket) => {
 
 app.use(morgan("dev"));
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
+// app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser())
 
 // PG database client/connection setup
 const { Pool } = require("pg");
@@ -64,11 +65,12 @@ app.put("/register", function (req, res) {
 });
 
 app.post("/login", (req, res) => {
+  console.log("THis", req.body)
   const { userId } = req.body;
   databaseHelperFunctions
     .login(userId)
     .then((user) => {
-      console.log(user[0].id);
+      // console.log(user[0].id);
       req.session.userId = user[0].id;
       res.json(user[0]);
     })
