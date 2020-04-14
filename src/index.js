@@ -10,10 +10,23 @@ const morgan = require("morgan");
 const server = require("http").Server(app);
 const cookieSession = require("cookie-session");
 
+// web socket for real-time data updating
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ server });
+
+wss.on("connection", (socket) => {
+  socket.onmessage = (event) => {
+    console.log(`Message Received: ${event.data}`);
+
+    if (event.data === "ping") {
+      socket.send(JSON.stringify("pong"));
+    }
+  };
+});
+
 // Load the logger first so all (static) HTTP requests are logged to STDOUT
 // 'dev' = Concise output colored by response status for development use.
 //         The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
-
 
 app.use(morgan("dev"));
 app.use(cors());
@@ -79,7 +92,7 @@ app.get("/favourites", (req, res) => {
     .catch((err) => res.status(500).send(err));
 });
 
-app.post("/addToFavourites/", function (req, res) {
+app.post("/addToFavourites", function (req, res) {
   const { userId } = req.session;
   const { recipeId } = req.body;
 
@@ -149,6 +162,6 @@ app.use(function (req, res, next) {
   res.status(404).send("Page not found!)");
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Listening on port ${PORT}!`);
 });
