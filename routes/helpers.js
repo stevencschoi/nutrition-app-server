@@ -50,7 +50,7 @@ module.exports = (db) => {
         [userId, recipeName]
       )
       .then((res) => {
-        console.log("addToFavourites function",res.rows);
+        console.log("addToFavourites function", res.rows);
         res.rows;
       })
       .catch((err) => {

@@ -31,7 +31,7 @@ wss.on("connection", (socket) => {
 app.use(morgan("dev"));
 app.use(cors());
 // app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser())
+app.use(bodyParser());
 
 // PG database client/connection setup
 const { Pool } = require("pg");
@@ -104,8 +104,11 @@ app.post("/addToFavourites", function (req, res) {
     .catch((err) => res.status(500).send(err));
 });
 
-app.delete("/deleteFavourite", (req, res) => {
+app.post("/deleteFavourite", (req, res) => {
+  // const { userId } = req.session;
+  console.log("Req body", req.body);
   const { favId } = req.body;
+  // console.log("userId:", userId, "favId:", favId);
   databaseHelperFunctions
     .deleteFavourite(favId)
     .then((data) => res.json(data))
