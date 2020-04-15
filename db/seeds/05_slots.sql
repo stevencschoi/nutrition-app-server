@@ -1,0 +1,1 @@
+INSERT INTO slots (date_id, favourite_id, recipe_id) VALUES ()

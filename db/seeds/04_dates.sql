@@ -1,0 +1,1 @@
+INSERT INTO dates (user_id, date) VALUES ()
