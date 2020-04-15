@@ -118,11 +118,24 @@ app.post("/deleteFavourite", (req, res) => {
 // ******************** DAY SLOT MANAGEMENT ********************
 // display user's daily meal plan
 app.get("/day", (req, res) => {
-  const { dateId } = req.body;
+  const { userId } = req.session;
+  const { date } = req.query;
+  console.log("user_id:", userId, "date", date);
+  // console.log(req);
   databaseHelperFunctions
-    .getSlotsForDay(dateId)
+    .getSlotsForDay(userId, date)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
+});
+
+// add recipe to date
+app.post("/addRecipe", (req, res) => {
+  const { userId } = req.session;
+  const { date, recipeName } = req.body;
+  databaseHelperFunctions
+    .addRecipe(userId, date, recipeName)
+    .then((data) => res.json(data))
+    .catch((err) => console.error(err));
 });
 
 // add recipe slot to meal plan
@@ -161,6 +174,14 @@ app.delete("/deleteFromSlot", (req, res) => {
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
+
+// app.post("/addFavToDate", (req, res) => {
+//   const { userId, favId } = req.body;
+//   databaseHelperFunctions
+//     .addFaveToDate(userId, favId)
+//     .then((data) => res.json(data))
+//     .catch((err) => console.error(err));
+// });
 
 // Change the 404 message modifing the middleware
 app.use(function (req, res, next) {
