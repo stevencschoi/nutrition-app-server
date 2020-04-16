@@ -161,14 +161,14 @@ module.exports = (db) => {
       .catch((error) => console.error(error));
   };
 
-  const deleteFromSlot = function (slotId, dateId) {
+  const deleteFromSlot = function (dateId) {
     return db
       .query(
         `
-    DELETE FROM slots
-    WHERE slots.id = $1 AND date_id = $2;
+    DELETE FROM dates
+    WHERE dates.id = $1;
       `,
-        [slotId, dateId]
+        [dateId]
       )
       .then((res) => res.rows)
       .catch((err) => console.error(err));

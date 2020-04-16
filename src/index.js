@@ -176,9 +176,10 @@ app.post("/editSlot", (req, res) => {
 
 // delete recipe from time slot
 app.delete("/deleteFromSlot", (req, res) => {
-  const { slotId, date } = req.body;
+  const { dateId } = req.query;
+  console.log(dateId)
   databaseHelperFunctions
-    .deleteFromSlot(slotId, date)
+    .deleteFromSlot(dateId)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
