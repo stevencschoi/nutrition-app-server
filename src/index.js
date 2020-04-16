@@ -129,10 +129,19 @@ app.get("/day", (req, res) => {
 // add recipe to date
 app.post("/addRecipe", (req, res) => {
   const { userId } = req.session;
-  const { date, recipeName, image } = req.query;
-  console.log("date", date, "recipeName", recipeName, "image", image);
+  const { date, recipeName, image, mealNumber } = req.query;
+  console.log(
+    "date",
+    date,
+    "recipeName",
+    recipeName,
+    "image",
+    image,
+    "mealNumber:",
+    mealNumber
+  );
   databaseHelperFunctions
-    .addRecipe(userId, date, recipeName, image)
+    .addRecipe(userId, date, recipeName, image, mealNumber)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
