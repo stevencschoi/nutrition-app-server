@@ -39,7 +39,6 @@ module.exports = (db) => {
   };
 
   const addToFavourites = function (userId, recipeName) {
-    console.log(`userId ${userId}, recipeName  ${recipeName}`);
     return db
       .query(
         `
@@ -95,14 +94,14 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addRecipe = function (userId, date, recipeName, image) {
+  const addRecipe = function (userId, date, recipeName, image, mealNumber) {
     return db
       .query(
-        `INSERT INTO dates (user_id, date, recipe_name, image)
-      VALUES ($1, $2, $3, $4)
+        `INSERT INTO dates (user_id, date, recipe_name, image, meal_number)
+      VALUES ($1, $2, $3, $4, $5)
       RETURNING *;
       `,
-        [userId, date, recipeName, image]
+        [userId, date, recipeName, image, mealNumber]
       )
       .then((res) => {
         console.log(res.rows);
@@ -114,7 +113,7 @@ module.exports = (db) => {
   const addSlot = function (dateId) {
     return db
       .query(
-        `INSERT INTO slots (date_id)
+        `INSERT INTO dates (date_id)
       VALUES ($1)
       RETURNING *;
       `,
@@ -130,8 +129,8 @@ module.exports = (db) => {
   const deleteSlot = function (slotId, dateId) {
     return db
       .query(
-        `DELETE FROM slots
-        WHERE slots.id = $1 AND date_id = $2;
+        `DELETE FROM dates
+        WHERE dates.id = $1 AND date_id = $2;
       `,
         [slotId, dateId]
       )
