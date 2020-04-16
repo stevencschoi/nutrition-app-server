@@ -24,6 +24,72 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
+  // *********** HELPER FUNCTIONS FOR FOLLOWING USERS ************
+  const getFollowingUsers = function (userId) {
+    return db
+      .query(
+        `
+    SELECT * FROM following
+    WHERE user_id = $1
+    RETURNING *;
+    `,
+        [userId]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
+  const searchForUser = function (username) {
+    return db
+      .query(
+        `
+      SELECT * FROM users
+      WHERE username = $1
+      RETURNING *;
+      `,
+        [username]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
+  const addUserToFollowing = function (userId, followId) {
+    return db
+      .query(
+        `
+    INSERT INTO following (user_id, follow_id)
+    VALUES ($1, $2)
+    RETURNING *;
+    `,
+        [userId, followId]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
+  const removeUserFromFollowing = function (userId, followId) {
+    return db
+      .query(
+        `
+    DELETE FROM following
+    WHERE user_id = $1 AND follower_id = $2;
+      `,
+        [userId, followId]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
+  // *********** HELPER FUNCTION TO SHOW USER DATA ************
+
+  const displayUserData(userId) {
+    return db.query(`
+    SELECT * FROM recipes
+    JOIN users on user_id = users.id
+    JOIN dates on date = dates.date
+    `)
+  }
+
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
   const getFavourites = function (userId) {
     return db
@@ -86,7 +152,8 @@ module.exports = (db) => {
     return db
       .query(
         `SELECT * FROM dates
-      WHERE user_id = $1 AND date = $2;
+      WHERE user_id = $1 AND date = $2
+      ORDER BY meal_number;
     `,
         [userId, date]
       )
@@ -177,6 +244,11 @@ module.exports = (db) => {
   return {
     register,
     login,
+    getFollowingUsers,
+    searchForUser,
+    addUserToFollowing,
+    removeUserFromFollowing,
+    displayUserData,
     getFavourites,
     addToFavourites,
     deleteFavourite,

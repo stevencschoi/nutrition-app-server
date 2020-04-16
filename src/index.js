@@ -42,7 +42,6 @@ db.connect();
 const databaseHelperFunctions = require("../routes/helpers")(db);
 
 // Using cookies to maintain logged in state
-
 app.use(
   cookieSession({
     name: "session",
@@ -82,6 +81,58 @@ app.post("/logout", (req, res) => {
   res.send({});
 });
 
+// ******************** FOLLOWING USERS ********************
+
+// show users following
+app.get("/following", (req, res) => {
+  const { userId } = req.session;
+  databaseHelperFunctions.getFollowingUsers(userId).then((data) => res.json(data))
+  .catch((err) => res.status(500).send(err));
+});
+
+// search for a particular user to follow
+app.get("/searchForUser", (req, res) => {
+  const { userId } = req.session;
+  const { username } = req.query;
+
+  databaseHelperFunctions
+    .searchForUser(userId, username)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err));
+});
+
+// add user to following
+app.post("/addUserToFollowing", (req, res) => {
+  const { userId } = req.session;
+  const { followId } = req.body;
+
+  databaseHelperFunctions
+    .addUserToFollowing(userId, followId)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err));
+})
+
+//delete user from following
+app.delete("/removeUserFromFollowing", (req, res) => {
+  const { userId } = req.session;
+  const { followId } = req.body;
+
+  databaseHelperFunctions
+    .removeUserFromFollowing(userId, followId)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err));
+});
+
+// *********** SHOW USER DATA ************
+app.get("/displayUserData", (req, res) => {
+  const { userId } = req.session;
+
+  databaseHelperFunctions
+    .displayUserData(userId, followId)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err));
+})
+
 // ******************** FAVOURITES ********************
 
 // display user's favourite recipes
@@ -105,10 +156,7 @@ app.post("/addToFavourites", function (req, res) {
 
 app.post("/deleteFavourite", (req, res) => {
   const { userId } = req.session;
-  console.log("Req body", req.body);
   const { favId } = req.body;
-  console.log("userId:", userId, "favId:", favId);
-  databaseHelperFunctions
     .deleteFavourite(favId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
@@ -177,7 +225,7 @@ app.post("/editSlot", (req, res) => {
 // delete recipe from time slot
 app.delete("/deleteFromSlot", (req, res) => {
   const { dateId } = req.query;
-  console.log(dateId)
+  console.log(dateId);
   databaseHelperFunctions
     .deleteFromSlot(dateId)
     .then((data) => res.json(data))
