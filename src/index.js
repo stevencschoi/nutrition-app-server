@@ -107,7 +107,7 @@ app.post("/deleteFavourite", (req, res) => {
   const { userId } = req.session;
   console.log("Req body", req.body);
   const { favId } = req.body;
-  // console.log("userId:", userId, "favId:", favId);
+  console.log("userId:", userId, "favId:", favId);
   databaseHelperFunctions
     .deleteFavourite(favId)
     .then((data) => res.json(data))
