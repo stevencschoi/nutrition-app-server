@@ -65,7 +65,6 @@ app.put("/register", function (req, res) {
 });
 
 app.post("/login", (req, res) => {
-  // console.log("THis", req.body)
   const { userId } = req.body;
   databaseHelperFunctions
     .login(userId)
@@ -105,7 +104,7 @@ app.post("/addToFavourites", function (req, res) {
 });
 
 app.post("/deleteFavourite", (req, res) => {
-  // const { userId } = req.session;
+  const { userId } = req.session;
   console.log("Req body", req.body);
   const { favId } = req.body;
   // console.log("userId:", userId, "favId:", favId);
@@ -118,27 +117,40 @@ app.post("/deleteFavourite", (req, res) => {
 // ******************** DAY SLOT MANAGEMENT ********************
 // display user's daily meal plan
 app.get("/day", (req, res) => {
-  const { dateId } = req.body;
+  const { userId } = req.session;
+  const { date } = req.query;
+  console.log("user_id:", userId, "date", date);
   databaseHelperFunctions
-    .getSlotsForDay(dateId)
+    .getSlotsForDay(userId, date)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
 
+// add recipe to date
+app.post("/addRecipe", (req, res) => {
+  const { userId } = req.session;
+  const { date, recipeName, image } = req.query;
+  console.log("date", date, "recipeName", recipeName, "image", image);
+  databaseHelperFunctions
+    .addRecipe(userId, date, recipeName, image)
+    .then((data) => res.json(data))
+    .catch((err) => console.error(err));
+});
+
 // add recipe slot to meal plan
 app.post("/addSlot", (req, res) => {
-  const { dateId } = req.body;
+  const { date } = req.body;
   databaseHelperFunctions
-    .addSlot(dateId)
+    .addSlot(date)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
 
 // delete recipe slot from meal plan
 app.delete("/deleteSlot", (req, res) => {
-  const { slotId, dateId } = req.body;
+  const { slotId, date } = req.body;
   databaseHelperFunctions
-    .deleteSlot(slotId, dateId)
+    .deleteSlot(slotId, date)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
@@ -155,12 +167,20 @@ app.post("/editSlot", (req, res) => {
 
 // delete recipe from time slot
 app.delete("/deleteFromSlot", (req, res) => {
-  const { slotId, dateId } = req.body;
+  const { slotId, date } = req.body;
   databaseHelperFunctions
-    .deleteFromSlot(slotId, dateId)
+    .deleteFromSlot(slotId, date)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
+
+// app.post("/addFavToDate", (req, res) => {
+//   const { userId, favId } = req.body;
+//   databaseHelperFunctions
+//     .addFaveToDate(userId, favId)
+//     .then((data) => res.json(data))
+//     .catch((err) => console.error(err));
+// });
 
 // Change the 404 message modifing the middleware
 app.use(function (req, res, next) {

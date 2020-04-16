@@ -83,15 +83,31 @@ module.exports = (db) => {
   };
 
   // *********** HELPER FUNCTIONS FOR HANDLING CALENDAR ENTRIES ************
-  const getSlotsForDay = function (dateId) {
+  const getSlotsForDay = function (userId, date) {
     return db
       .query(
-        `SELECT * FROM slots
-      WHERE date_id = $1;
+        `SELECT * FROM dates
+      WHERE user_id = $1 AND date = $2;
     `,
-        [dateId]
+        [userId, date]
       )
       .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
+  const addRecipe = function (userId, date, recipeName, image) {
+    return db
+      .query(
+        `INSERT INTO dates (user_id, date, recipe_name, image)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *;
+      `,
+        [userId, date, recipeName, image]
+      )
+      .then((res) => {
+        console.log(res.rows);
+        res.rows;
+      })
       .catch((err) => console.error(err));
   };
 
@@ -170,5 +186,6 @@ module.exports = (db) => {
     deleteSlot,
     editSlot,
     deleteFromSlot,
+    addRecipe,
   };
 };
