@@ -86,7 +86,8 @@ module.exports = (db) => {
     return db
       .query(
         `SELECT * FROM dates
-      WHERE user_id = $1 AND date = $2;
+      WHERE user_id = $1 AND date = $2
+      ORDER BY meal_number;
     `,
         [userId, date]
       )
