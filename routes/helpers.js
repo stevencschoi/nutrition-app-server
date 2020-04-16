@@ -82,13 +82,13 @@ module.exports = (db) => {
 
   // *********** HELPER FUNCTION TO SHOW USER DATA ************
 
-  const displayUserData(userId) {
-    return db.query(`
-    SELECT * FROM recipes
-    JOIN users on user_id = users.id
-    JOIN dates on date = dates.date
-    `)
-  }
+  // const displayUserData(userId) {
+  //   return db.query(`
+  //   SELECT * FROM recipes
+  //   JOIN users on user_id = users.id
+  //   JOIN dates on date = dates.date
+  //   `)
+  // }
 
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
   const getFavourites = function (userId) {
@@ -248,7 +248,7 @@ module.exports = (db) => {
     searchForUser,
     addUserToFollowing,
     removeUserFromFollowing,
-    displayUserData,
+    // displayUserData,
     getFavourites,
     addToFavourites,
     deleteFavourite,

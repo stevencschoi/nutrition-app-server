@@ -86,8 +86,10 @@ app.post("/logout", (req, res) => {
 // show users following
 app.get("/following", (req, res) => {
   const { userId } = req.session;
-  databaseHelperFunctions.getFollowingUsers(userId).then((data) => res.json(data))
-  .catch((err) => res.status(500).send(err));
+  databaseHelperFunctions
+    .getFollowingUsers(userId)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err));
 });
 
 // search for a particular user to follow
@@ -110,7 +112,7 @@ app.post("/addUserToFollowing", (req, res) => {
     .addUserToFollowing(userId, followId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
-})
+});
 
 //delete user from following
 app.delete("/removeUserFromFollowing", (req, res) => {
@@ -124,14 +126,14 @@ app.delete("/removeUserFromFollowing", (req, res) => {
 });
 
 // *********** SHOW USER DATA ************
-app.get("/displayUserData", (req, res) => {
-  const { userId } = req.session;
+// app.get("/displayUserData", (req, res) => {
+//   const { userId } = req.session;
 
-  databaseHelperFunctions
-    .displayUserData(userId, followId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-})
+//   databaseHelperFunctions
+//     .displayUserData(userId, followId)
+//     .then((data) => res.json(data))
+//     .catch((err) => res.status(500).send(err));
+// });
 
 // ******************** FAVOURITES ********************
 
@@ -157,6 +159,7 @@ app.post("/addToFavourites", function (req, res) {
 app.post("/deleteFavourite", (req, res) => {
   const { userId } = req.session;
   const { favId } = req.body;
+  databaseHelperFunctions
     .deleteFavourite(favId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
