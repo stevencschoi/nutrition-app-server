@@ -121,7 +121,6 @@ app.get("/day", (req, res) => {
   const { userId } = req.session;
   const { date } = req.query;
   console.log("user_id:", userId, "date", date);
-  // console.log(req);
   databaseHelperFunctions
     .getSlotsForDay(userId, date)
     .then((data) => res.json(data))
@@ -131,27 +130,28 @@ app.get("/day", (req, res) => {
 // add recipe to date
 app.post("/addRecipe", (req, res) => {
   const { userId } = req.session;
-  const { date, recipeName } = req.body;
+  const { date, recipeName, image } = req.query;
+  console.log("date", date, "recipeName", recipeName, "image", image);
   databaseHelperFunctions
-    .addRecipe(userId, date, recipeName)
+    .addRecipe(userId, date, recipeName, image)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
 
 // add recipe slot to meal plan
 app.post("/addSlot", (req, res) => {
-  const { dateId } = req.body;
+  const { date } = req.body;
   databaseHelperFunctions
-    .addSlot(dateId)
+    .addSlot(date)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
 
 // delete recipe slot from meal plan
 app.delete("/deleteSlot", (req, res) => {
-  const { slotId, dateId } = req.body;
+  const { slotId, date } = req.body;
   databaseHelperFunctions
-    .deleteSlot(slotId, dateId)
+    .deleteSlot(slotId, date)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
@@ -168,9 +168,9 @@ app.post("/editSlot", (req, res) => {
 
 // delete recipe from time slot
 app.delete("/deleteFromSlot", (req, res) => {
-  const { slotId, dateId } = req.body;
+  const { slotId, date } = req.body;
   databaseHelperFunctions
-    .deleteFromSlot(slotId, dateId)
+    .deleteFromSlot(slotId, date)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });

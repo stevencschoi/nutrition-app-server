@@ -95,14 +95,14 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addRecipe = function (userId, date, recipeName) {
+  const addRecipe = function (userId, date, recipeName, image) {
     return db
       .query(
-        `INSERT INTO dates (user_id, date, recipe_name)
-      VALUES ($1, $2, $3)
+        `INSERT INTO dates (user_id, date, recipe_name, image)
+      VALUES ($1, $2, $3, $4)
       RETURNING *;
       `,
-        [userId, date, recipeName]
+        [userId, date, recipeName, image]
       )
       .then((res) => {
         console.log(res.rows);
