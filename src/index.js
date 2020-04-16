@@ -116,12 +116,22 @@ app.post("/addUserToFollowing", (req, res) => {
 app.delete("/removeUserFromFollowing", (req, res) => {
   const { userId } = req.session;
   const { followId } = req.body;
-  
+
   databaseHelperFunctions
     .removeUserFromFollowing(userId, followId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
+
+// *********** SHOW USER DATA ************
+app.get("/displayUserData", (req, res) => {
+  const { userId } = req.session;
+
+  databaseHelperFunctions
+    .displayUserData(userId, followId)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err));
+})
 
 // ******************** FAVOURITES ********************
 
