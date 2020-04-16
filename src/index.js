@@ -65,7 +65,6 @@ app.put("/register", function (req, res) {
 });
 
 app.post("/login", (req, res) => {
-  // console.log("THis", req.body)
   const { userId } = req.body;
   databaseHelperFunctions
     .login(userId)
@@ -105,7 +104,7 @@ app.post("/addToFavourites", function (req, res) {
 });
 
 app.post("/deleteFavourite", (req, res) => {
-  // const { userId } = req.session;
+  const { userId } = req.session;
   console.log("Req body", req.body);
   const { favId } = req.body;
   // console.log("userId:", userId, "favId:", favId);
