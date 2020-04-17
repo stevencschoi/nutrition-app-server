@@ -208,7 +208,7 @@ app.post("/deleteFavourite", (req, res) => {
 app.get("/day", (req, res) => {
   const { userId } = req.session;
   const { date } = req.query;
-  console.log("user_id:", userId, "date", date);
+
   databaseHelperFunctions
     .getRecipesForDay(userId, date)
     .then((data) => res.json(data))
@@ -226,26 +226,16 @@ app.post("/addRecipeToDay", (req, res) => {
     .catch((err) => console.error(err));
 });
 
-// add recipe slot to meal plan
-app.post("/addSlot", (req, res) => {
-  const { date } = req.body;
-  databaseHelperFunctions
-    .addSlot(date)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
 // delete recipe from meal plan
-app.delete("/deleteFromDay", (req, res) => {
+app.post("/deleteFromDay", (req, res) => {
   const { dateId } = req.body;
   databaseHelperFunctions
     .deleteFromDay(dateId)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
-// ******************** RECIPE SLOT MANAGEMENT ********************
 
-// edit recipe in a time slot
+// edit recipe in a day
 app.post("/editRecipe", (req, res) => {
   const { dateId } = req.body;
   databaseHelperFunctions
@@ -254,16 +244,7 @@ app.post("/editRecipe", (req, res) => {
     .catch((err) => console.error(err));
 });
 
-// delete recipe from time slot
-app.delete("/deleteFromSlot", (req, res) => {
-  const { dateId } = req.query;
-  console.log(dateId);
-  databaseHelperFunctions
-    .deleteFromSlot(dateId)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
+//********** ADD RECIPE */
 // add recipe to recipe table
 app.post("/addRecipe", (req, res) => {
   const {
@@ -298,14 +279,6 @@ app.post("/addRecipe", (req, res) => {
     })
     .catch((err) => console.error(err));
 });
-
-// app.post("/addFavToDate", (req, res) => {
-//   const { userId, favId } = req.body;
-//   databaseHelperFunctions
-//     .addFaveToDate(userId, favId)
-//     .then((data) => res.json(data))
-//     .catch((err) => console.error(err));
-// });
 
 // Change the 404 message modifing the middleware
 app.use(function (req, res, next) {

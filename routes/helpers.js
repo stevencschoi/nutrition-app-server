@@ -157,7 +157,8 @@ module.exports = (db) => {
   const getRecipesForDay = (userId, date) => {
     return db
       .query(
-        `SELECT * FROM dates
+        `SELECT * FROM recipes
+        JOIN dates ON recipes.id = recipe_id
       WHERE user_id = $1 AND date = $2
       ORDER BY meal_number;
     `,
@@ -183,49 +184,18 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addSlot = (dateId) => {
-    return db
-      .query(
-        `INSERT INTO dates (date_id)
-      VALUES ($1)
-      RETURNING *;
-      `,
-        [dateId]
-      )
-      .then((res) => {
-        console.log(res.rows);
-        res.rows;
-      })
-      .catch((err) => console.error(err));
-  };
-
-  const deleteSlot = (slotId, dateId) => {
-    return db
-      .query(
-        `DELETE FROM dates
-        WHERE dates.id = $1 AND date_id = $2;
-      `,
-        [slotId, dateId]
-      )
-      .then((res) => {
-        console.log(res.rows);
-        res.rows;
-      })
-      .catch((err) => console.error(err));
-  };
-
-  const editRecipeFromDay = (dateId) => {
-    console.log(`dateId ${dateId}`);
+  const editRecipeFromDay = (dateId, recipeId) => {
+    console.log(`dateId ${dateId}, recipe ${recipeId}`);
     return db
       .query(
         `
-        SELECT slots.id, recipe_id,
+        SELECT dates.id, recipe_id,
         REPLACE(recipe_id, $2)
-        FROM slots
-        WHERE slots.id = $1
+        FROM dates
+        WHERE dates.id = $1
         RETURNING *;
       `,
-        [slotId, recipeId]
+        [dateId, recipe_id]
       )
       .then((res) => {
         console.log(res.rows);
@@ -307,8 +277,6 @@ module.exports = (db) => {
     addToFavourites,
     deleteFavourite,
     getRecipesForDay,
-    addSlot,
-    deleteSlot,
     editRecipeFromDay,
     deleteFromDay,
     addRecipeToDay,
