@@ -87,7 +87,7 @@ app.get("/getAllUsers", (req, res) => {
   databaseHelperFunctions
     .getAllUsers()
     .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err))
+    .catch((err) => res.status(500).send(err));
 });
 
 // show users following
@@ -135,12 +135,27 @@ app.delete("/removeUserFromFollowing", (req, res) => {
 // *********** SHOW USER DATA ************
 app.get("/displayUserData", (req, res) => {
   const { userId } = req.session;
-  const {startDate , endDate, userChoice} = req.body
-  console.log(startDate , endDate, userChoice)
-  databaseHelperFunctions
-    .displayUserData(userId, date)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
+  const { startDate, endDate, userChoice } = req.query;
+  const columnName = {
+    Calories: "calories",
+    Fat: "fat_in_g",
+    Carbohydrates: "carbs_in_g",
+    Fiber: "fiber_in_g",
+    Sugar: "sugar_in_g",
+    Protein: "protein_in_g",
+    Cholesterol: "cholesterol_in_mg",
+    Sodium: "sodium_in_mg",
+  };
+
+  if (!columnName[userChoice]) {
+    res.status(400);
+  } else {
+    console.log(startDate, endDate, userChoice);
+    databaseHelperFunctions
+      .displayUserData(userId, startDate, endDate, columnName[userChoice])
+      .then((data) => res.json(data))
+      .catch((err) => res.status(500).send(err));
+  }
 });
 
 // ******************** FAVOURITES ********************
@@ -184,7 +199,7 @@ app.post("/checkRecipe", (req, res) => {
 // display user's favourite recipes
 app.get("/favourites", (req, res) => {
   const { userId } = req.session;
-  console.log("thissss",userId)
+  console.log("thissss", userId);
   databaseHelperFunctions
     .getFavourites(userId)
     .then((data) => res.json(data))

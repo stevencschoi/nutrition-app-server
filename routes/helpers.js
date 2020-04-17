@@ -100,12 +100,12 @@ module.exports = (db) => {
     return db
       .query(
         `
-    SELECT SUM($4) FROM recipes
+    SELECT date_trunc('day',date), SUM(recipes.${userChoice}) FROM recipes
     JOIN dates on recipe_id = recipes.id
     WHERE user_id = $1 AND date BETWEEN $2 AND $3
-    ORDER BY meal_number
+    GROUP BY date_trunc('day', date)
     `,
-        [userId, startDate, endDate, userChoice]
+        [userId, startDate, endDate]
       )
       .then((res) => res.rows)
       .catch((err) => console.error(err));
