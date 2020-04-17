@@ -137,6 +137,43 @@ app.delete("/removeUserFromFollowing", (req, res) => {
 
 // ******************** FAVOURITES ********************
 
+// check if recipe exists
+app.post("/checkRecipe", (req, res) => {
+  // const {
+  //   recipeName,
+  //   calories,
+  //   fatInG,
+  //   carbsInG,
+  //   proteinInG,
+  //   sugarInG,
+  //   fiberInG,
+  //   cholesterolInMg,
+  //   sodiumInMg,
+  //   imageUrl,
+  // } = req.query;
+  // databaseHelperFunctions
+  //   .checkRecipe(
+  //     recipeName,
+  //     calories,
+  //     fatInG,
+  //     carbsInG,
+  //     proteinInG,
+  //     sugarInG,
+  //     fiberInG,
+  //     cholesterolInMg,
+  //     sodiumInMg,
+  //     imageUrl
+  //   )
+  const { recipeName } = req.query;
+  databaseHelperFunctions
+    .checkRecipe(recipeName)
+    .then((data) => {
+      // console.log("the data is:", data);
+      res.json(data);
+    })
+    .catch((err) => res.status(500).send(err));
+});
+
 // display user's favourite recipes
 app.get("/favourites", (req, res) => {
   const { userId } = req.session;
@@ -148,19 +185,20 @@ app.get("/favourites", (req, res) => {
 
 app.post("/addToFavourites", function (req, res) {
   const { userId } = req.session;
-  const { recipeName } = req.body;
+  const { recipeId } = req.body;
 
   databaseHelperFunctions
-    .addToFavourites(userId, recipeName)
+    .addToFavourites(userId, recipeId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
 
 app.post("/deleteFavourite", (req, res) => {
   const { userId } = req.session;
-  const { favId } = req.body;
+  const { recipeId } = req.body;
+  console.log(userId, "recipeId", recipeId);
   databaseHelperFunctions
-    .deleteFavourite(favId)
+    .deleteFavourite(userId, recipeId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
@@ -172,27 +210,18 @@ app.get("/day", (req, res) => {
   const { date } = req.query;
   console.log("user_id:", userId, "date", date);
   databaseHelperFunctions
-    .getSlotsForDay(userId, date)
+    .getRecipesForDay(userId, date)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
 
 // add recipe to date
-app.post("/addRecipe", (req, res) => {
+app.post("/addRecipeToDay", (req, res) => {
   const { userId } = req.session;
-  const { date, recipeName, image, mealNumber } = req.query;
-  console.log(
-    "date",
-    date,
-    "recipeName",
-    recipeName,
-    "image",
-    image,
-    "mealNumber:",
-    mealNumber
-  );
+  const { date, recipeId, mealNumber } = req.body;
+  console.log("date", date, "mealNumber:", mealNumber);
   databaseHelperFunctions
-    .addRecipe(userId, date, recipeName, image, mealNumber)
+    .addRecipeToDay(userId, date, recipeId, mealNumber)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
@@ -206,21 +235,21 @@ app.post("/addSlot", (req, res) => {
     .catch((err) => console.error(err));
 });
 
-// delete recipe slot from meal plan
-app.delete("/deleteSlot", (req, res) => {
-  const { slotId, date } = req.body;
+// delete recipe from meal plan
+app.delete("/deleteFromDay", (req, res) => {
+  const { dateId } = req.body;
   databaseHelperFunctions
-    .deleteSlot(slotId, date)
+    .deleteFromDay(dateId)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
 // ******************** RECIPE SLOT MANAGEMENT ********************
 
 // edit recipe in a time slot
-app.post("/editSlot", (req, res) => {
-  const { slotId, recipeId } = req.body;
+app.post("/editRecipe", (req, res) => {
+  const { dateId } = req.body;
   databaseHelperFunctions
-    .editSlot(slotId, recipeId)
+    .editRecipeFromDay(dateId)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
@@ -232,6 +261,41 @@ app.delete("/deleteFromSlot", (req, res) => {
   databaseHelperFunctions
     .deleteFromSlot(dateId)
     .then((data) => res.json(data))
+    .catch((err) => console.error(err));
+});
+
+// add recipe to recipe table
+app.post("/addRecipe", (req, res) => {
+  const {
+    recipeName,
+    calories,
+    fatInG,
+    carbsInG,
+    proteinInG,
+    sugarInG,
+    fiberInG,
+    cholesterolInMg,
+    sodiumInMg,
+    imageUrl,
+  } = req.body;
+
+  databaseHelperFunctions
+    .addRecipe(
+      recipeName,
+      calories,
+      fatInG,
+      carbsInG,
+      proteinInG,
+      sugarInG,
+      fiberInG,
+      cholesterolInMg,
+      sodiumInMg,
+      imageUrl
+    )
+    .then((data) => {
+      console.log("the data is:", data);
+      res.json(data);
+    })
     .catch((err) => console.error(err));
 });
 

@@ -1,6 +1,6 @@
 module.exports = (db) => {
   // *********** HELPER FUNCTIONS FOR USER ROUTES ************
-  const register = function () {
+  const register = () => {
     return db
       .query(
         `INSERT INTO users (username, name, email, password, avatar)
@@ -11,7 +11,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const login = function (userId) {
+  const login = (userId) => {
     return db
       .query(
         `
@@ -25,7 +25,7 @@ module.exports = (db) => {
   };
 
   // *********** HELPER FUNCTIONS FOR FOLLOWING USERS ************
-  const getFollowingUsers = function (userId) {
+  const getFollowingUsers = (userId) => {
     return db
       .query(
         `
@@ -39,7 +39,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const searchForUser = function (username) {
+  const searchForUser = (username) => {
     return db
       .query(
         `
@@ -53,7 +53,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addUserToFollowing = function (userId, followId) {
+  const addUserToFollowing = (userId, followId) => {
     return db
       .query(
         `
@@ -67,7 +67,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const removeUserFromFollowing = function (userId, followId) {
+  const removeUserFromFollowing = (userId, followId) => {
     return db
       .query(
         `
@@ -82,20 +82,27 @@ module.exports = (db) => {
 
   // *********** HELPER FUNCTION TO SHOW USER DATA ************
 
-  // const displayUserData(userId) {
-  //   return db.query(`
-  //   SELECT * FROM recipes
-  //   JOIN users on user_id = users.id
-  //   JOIN dates on date = dates.date
-  //   `)
-  // }
+  const displayUserData = (userId, date, recipeId) => {
+    return db
+      .query(
+        `
+    SELECT * FROM recipes
+    JOIN dates on recipe_id = recipe.id
+    WHERE user_id = $1 AND date = $2
+    `,
+        [userId, date]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
 
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
-  const getFavourites = function (userId) {
+  const getFavourites = (userId) => {
     return db
       .query(
         `
       SELECT * FROM favourites
+      JOIN recipes ON recipes.id = recipe_id
       WHERE favourites.user_id = $1
       `,
         [userId]
@@ -104,15 +111,15 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addToFavourites = function (userId, recipeName) {
+  const addToFavourites = (userId, recipeId) => {
     return db
       .query(
         `
-      INSERT INTO favourites (user_id, recipe_name)
+      INSERT INTO favourites (user_id, recipe_id)
       VALUES ($1, $2)
       RETURNING *;
       `,
-        [userId, recipeName]
+        [userId, recipeId]
       )
       .then((res) => {
         console.log("addToFavourites function", res.rows);
@@ -125,30 +132,29 @@ module.exports = (db) => {
             `
                 DELETE FROM favourites
                 WHERE
-                user_id = $1 AND recipe_name = $2
+                user_id = $1 AND recipe_id = $2
                 RETURNING *;
               `,
-            [userId, recipeName]
+            [userId, recipeId]
           );
         }
       });
   };
 
-  const deleteFavourite = function (favId) {
+  const deleteFavourite = (userId, recipeId) => {
     return db
       .query(
         `
     DELETE FROM favourites
-    WHERE favourites.id = $1;
-      `,
-        [favId]
+    WHERE user_id = $1 AND recipe_id = $2`,
+        [userId, recipeId]
       )
       .then((res) => res.rows)
       .catch((err) => console.error(err));
   };
 
   // *********** HELPER FUNCTIONS FOR HANDLING CALENDAR ENTRIES ************
-  const getSlotsForDay = function (userId, date) {
+  const getRecipesForDay = (userId, date) => {
     return db
       .query(
         `SELECT * FROM dates
@@ -161,14 +167,14 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addRecipe = function (userId, date, recipeName, image, mealNumber) {
+  const addRecipeToDay = (userId, date, recipeId, mealNumber) => {
     return db
       .query(
-        `INSERT INTO dates (user_id, date, recipe_name, image, meal_number)
-      VALUES ($1, $2, $3, $4, $5)
+        `INSERT INTO dates (user_id, date, recipe_id, meal_number)
+      VALUES ($1, $2, $3, $4)
       RETURNING *;
       `,
-        [userId, date, recipeName, image, mealNumber]
+        [userId, date, recipeId, mealNumber]
       )
       .then((res) => {
         console.log(res.rows);
@@ -177,7 +183,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addSlot = function (dateId) {
+  const addSlot = (dateId) => {
     return db
       .query(
         `INSERT INTO dates (date_id)
@@ -193,7 +199,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const deleteSlot = function (slotId, dateId) {
+  const deleteSlot = (slotId, dateId) => {
     return db
       .query(
         `DELETE FROM dates
@@ -208,8 +214,8 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const editSlot = function (slotId, recipeId) {
-    console.log(`slotId ${slotId}, recipeId  ${recipeId}`);
+  const editRecipeFromDay = (dateId) => {
+    console.log(`dateId ${dateId}`);
     return db
       .query(
         `
@@ -228,7 +234,7 @@ module.exports = (db) => {
       .catch((error) => console.error(error));
   };
 
-  const deleteFromSlot = function (dateId) {
+  const deleteFromDay = (dateId) => {
     return db
       .query(
         `
@@ -241,6 +247,54 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
+  // *********** HELPER FUNCTIONS FOR RECIPE TABLE ************
+  // check if recipe exists in database
+  const checkRecipe = (recipeName) => {
+    return db
+      .query(
+        `
+    SELECT * FROM recipes
+    WHERE recipes.name = $1`,
+        [recipeName]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
+  // add recipe to database
+  const addRecipe = (
+    recipeName,
+    calories,
+    fatInG,
+    carbsInG,
+    proteinInG,
+    sugarInG,
+    fiberInG,
+    cholesterolInMg,
+    sodiumInMg,
+    imageUrl
+  ) => {
+    return db
+      .query(
+        `INSERT INTO recipes (name, calories, fat_in_g, carbs_in_g, protein_in_g, sugar_in_g, fiber_in_g, cholesterol_in_mg, sodium_in_mg, image_url)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [
+          recipeName,
+          calories,
+          fatInG,
+          carbsInG,
+          proteinInG,
+          sugarInG,
+          fiberInG,
+          cholesterolInMg,
+          sodiumInMg,
+          imageUrl,
+        ]
+      )
+      .then((res) => res.rows)
+      .catch((err) => console.error(err));
+  };
+
   return {
     register,
     login,
@@ -248,15 +302,17 @@ module.exports = (db) => {
     searchForUser,
     addUserToFollowing,
     removeUserFromFollowing,
-    // displayUserData,
+    displayUserData,
     getFavourites,
     addToFavourites,
     deleteFavourite,
-    getSlotsForDay,
+    getRecipesForDay,
     addSlot,
     deleteSlot,
-    editSlot,
-    deleteFromSlot,
+    editRecipeFromDay,
+    deleteFromDay,
+    addRecipeToDay,
     addRecipe,
+    checkRecipe,
   };
 };
