@@ -31,11 +31,13 @@ module.exports = (db) => {
       .query(
         `
     SELECT * FROM users WHERE
-    user_id IS NOT $1
+    NOT id = $1
     `,
         [userId]
       )
-      .then((res) => res.rows)
+      .then((res) => {
+        return res.rows;
+      })
       .catch((err) => console.error(err));
   };
 
@@ -49,7 +51,10 @@ module.exports = (db) => {
     `,
         [userId]
       )
-      .then((res) => res.rows)
+      .then((res) => {
+        console.log(res.rows);
+        return res.rows;
+      })
       .catch((err) => console.error(err));
   };
 
@@ -67,18 +72,35 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const addUserToFollowing = (userId, followId) => {
-    return db
-      .query(
-        `
+  const toggleFollower = (userId, followId) => {
+    return (
+      db
+        .query(
+          `
     INSERT INTO following (user_id, follow_id)
     VALUES ($1, $2)
-    RETURNING *;
     `,
-        [userId, followId]
-      )
-      .then((res) => res.rows)
-      .catch((err) => console.error(err));
+          [userId, followId]
+        )
+        .then((res) => {
+          console.log("query result:", res.rows);
+          return res.rows;
+        })
+        // if combination exists in following, delete from following db
+        .catch((err) => {
+          if (err.code === "23505") {
+            return db.query(
+              `
+              DELETE FROM favourites
+              WHERE
+              user_id = $1 AND follow_id = $2
+              RETURNING *;
+            `,
+              [userId, followId]
+            );
+          }
+        })
+    );
   };
 
   const removeUserFromFollowing = (userId, followId) => {
@@ -301,7 +323,7 @@ module.exports = (db) => {
     getAllUsers,
     getFollowingUsers,
     searchForUser,
-    addUserToFollowing,
+    toggleFollower,
     removeUserFromFollowing,
     displayUserData,
     getFavourites,
