@@ -83,6 +83,13 @@ app.post("/logout", (req, res) => {
 
 // ******************** FOLLOWING USERS ********************
 
+app.get("/getAllUsers", (req, res) => {
+  databaseHelperFunctions
+    .getAllUsers()
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err))
+});
+
 // show users following
 app.get("/following", (req, res) => {
   const { userId } = req.session;
@@ -126,14 +133,15 @@ app.delete("/removeUserFromFollowing", (req, res) => {
 });
 
 // *********** SHOW USER DATA ************
-// app.get("/displayUserData", (req, res) => {
-//   const { userId } = req.session;
-
-//   databaseHelperFunctions
-//     .displayUserData(userId, followId)
-//     .then((data) => res.json(data))
-//     .catch((err) => res.status(500).send(err));
-// });
+app.get("/displayUserData", (req, res) => {
+  const { userId } = req.session;
+  const {startDate , endDate, userChoice} = req.body
+  console.log(startDate , endDate, userChoice)
+  databaseHelperFunctions
+    .displayUserData(userId, date)
+    .then((data) => res.json(data))
+    .catch((err) => res.status(500).send(err));
+});
 
 // ******************** FAVOURITES ********************
 
@@ -176,6 +184,7 @@ app.post("/checkRecipe", (req, res) => {
 // display user's favourite recipes
 app.get("/favourites", (req, res) => {
   const { userId } = req.session;
+  console.log("thissss",userId)
   databaseHelperFunctions
     .getFavourites(userId)
     .then((data) => res.json(data))
