@@ -104,6 +104,7 @@ module.exports = (db) => {
     JOIN dates on recipe_id = recipes.id
     WHERE user_id = $1 AND date BETWEEN $2 AND $3
     GROUP BY date_trunc('day', date)
+    ORDER BY date_trunc
     `,
         [userId, startDate, endDate]
       )
