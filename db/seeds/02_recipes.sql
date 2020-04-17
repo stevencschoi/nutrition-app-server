@@ -1,4 +1,4 @@
-INSERT INTO recipes (user_id, name, calories, fat_in_g, carbs_in_g, 
+INSERT INTO recipes (name, calories, fat_in_g, carbs_in_g, 
   protein_in_g, sugar_in_g, fiber_in_g, cholesterol_in_mg, sodium_in_mg,
   image_url) VALUES 
     (1, 'Chicken Vesuvio', 1013.94, 68.61, 34.2, 56.47, 3.97, 5.77, 203.77, 

@@ -137,6 +137,42 @@ app.delete("/removeUserFromFollowing", (req, res) => {
 
 // ******************** FAVOURITES ********************
 
+// check if recipe exists
+app.post("/checkRecipe", (req, res) => {
+  // const {
+  //   recipeName,
+  //   calories,
+  //   fatInG,
+  //   carbsInG,
+  //   proteinInG,
+  //   sugarInG,
+  //   fiberInG,
+  //   cholesterolInMg,
+  //   sodiumInMg,
+  //   imageUrl,
+  // } = req.query;
+  // databaseHelperFunctions
+  //   .checkRecipe(
+  //     recipeName,
+  //     calories,
+  //     fatInG,
+  //     carbsInG,
+  //     proteinInG,
+  //     sugarInG,
+  //     fiberInG,
+  //     cholesterolInMg,
+  //     sodiumInMg,
+  //     imageUrl
+  //   )
+  const { recipeName } = req.query;
+  databaseHelperFunctions
+    .checkRecipe(recipeName)
+    .then((data) => {
+      res.json(data);
+    })
+    .catch((err) => res.status(500).send(err));
+});
+
 // display user's favourite recipes
 app.get("/favourites", (req, res) => {
   const { userId } = req.session;
@@ -148,19 +184,20 @@ app.get("/favourites", (req, res) => {
 
 app.post("/addToFavourites", function (req, res) {
   const { userId } = req.session;
-  const { recipeName } = req.body;
+  const { recipeId } = req.body;
 
   databaseHelperFunctions
-    .addToFavourites(userId, recipeName)
+    .addToFavourites(userId, recipeId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
 
 app.post("/deleteFavourite", (req, res) => {
   const { userId } = req.session;
-  const { favId } = req.body;
+  const { recipeId } = req.body;
+  console.log(userId, "recipeId", recipeId);
   databaseHelperFunctions
-    .deleteFavourite(favId)
+    .deleteFavourite(userId, recipeId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
@@ -170,78 +207,77 @@ app.post("/deleteFavourite", (req, res) => {
 app.get("/day", (req, res) => {
   const { userId } = req.session;
   const { date } = req.query;
-  console.log("user_id:", userId, "date", date);
+
   databaseHelperFunctions
-    .getSlotsForDay(userId, date)
+    .getRecipesForDay(userId, date)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
 
 // add recipe to date
-app.post("/addRecipe", (req, res) => {
+app.post("/addRecipeToDay", (req, res) => {
   const { userId } = req.session;
-  const { date, recipeName, image, mealNumber } = req.query;
-  console.log(
-    "date",
-    date,
-    "recipeName",
+  const { date, recipeId, mealNumber } = req.body;
+  console.log("date", date, "mealNumber:", mealNumber);
+  databaseHelperFunctions
+    .addRecipeToDay(userId, date, recipeId, mealNumber)
+    .then((data) => res.json(data))
+    .catch((err) => console.error(err));
+});
+
+// delete recipe from meal plan
+app.post("/deleteFromDay", (req, res) => {
+  const { dateId } = req.body;
+  databaseHelperFunctions
+    .deleteFromDay(dateId)
+    .then((data) => res.json(data))
+    .catch((err) => console.error(err));
+});
+
+// edit recipe in a day
+app.post("/editRecipe", (req, res) => {
+  const { dateId } = req.body;
+  databaseHelperFunctions
+    .editRecipeFromDay(dateId)
+    .then((data) => res.json(data))
+    .catch((err) => console.error(err));
+});
+
+//********** ADD RECIPE */
+// add recipe to recipe table
+app.post("/addRecipe", (req, res) => {
+  const {
     recipeName,
-    "image",
-    image,
-    "mealNumber:",
-    mealNumber
-  );
+    calories,
+    fatInG,
+    carbsInG,
+    proteinInG,
+    sugarInG,
+    fiberInG,
+    cholesterolInMg,
+    sodiumInMg,
+    imageUrl,
+  } = req.body;
+
   databaseHelperFunctions
-    .addRecipe(userId, date, recipeName, image, mealNumber)
-    .then((data) => res.json(data))
+    .addRecipe(
+      recipeName,
+      calories,
+      fatInG,
+      carbsInG,
+      proteinInG,
+      sugarInG,
+      fiberInG,
+      cholesterolInMg,
+      sodiumInMg,
+      imageUrl
+    )
+    .then((data) => {
+      console.log("the data is:", data);
+      res.json(data);
+    })
     .catch((err) => console.error(err));
 });
-
-// add recipe slot to meal plan
-app.post("/addSlot", (req, res) => {
-  const { date } = req.body;
-  databaseHelperFunctions
-    .addSlot(date)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-// delete recipe slot from meal plan
-app.delete("/deleteSlot", (req, res) => {
-  const { slotId, date } = req.body;
-  databaseHelperFunctions
-    .deleteSlot(slotId, date)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-// ******************** RECIPE SLOT MANAGEMENT ********************
-
-// edit recipe in a time slot
-app.post("/editSlot", (req, res) => {
-  const { slotId, recipeId } = req.body;
-  databaseHelperFunctions
-    .editSlot(slotId, recipeId)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-// delete recipe from time slot
-app.delete("/deleteFromSlot", (req, res) => {
-  const { dateId } = req.query;
-  console.log(dateId);
-  databaseHelperFunctions
-    .deleteFromSlot(dateId)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-// app.post("/addFavToDate", (req, res) => {
-//   const { userId, favId } = req.body;
-//   databaseHelperFunctions
-//     .addFaveToDate(userId, favId)
-//     .then((data) => res.json(data))
-//     .catch((err) => console.error(err));
-// });
 
 // Change the 404 message modifing the middleware
 app.use(function (req, res, next) {
