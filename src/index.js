@@ -168,7 +168,6 @@ app.post("/checkRecipe", (req, res) => {
   databaseHelperFunctions
     .checkRecipe(recipeName)
     .then((data) => {
-      // console.log("the data is:", data);
       res.json(data);
     })
     .catch((err) => res.status(500).send(err));
