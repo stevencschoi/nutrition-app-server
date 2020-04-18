@@ -91,7 +91,7 @@ module.exports = (db) => {
           if (err.code === "23505") {
             return db.query(
               `
-              DELETE FROM favourites
+              DELETE FROM following
               WHERE
               user_id = $1 AND follow_id = $2
               RETURNING *;
