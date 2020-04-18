@@ -26,7 +26,7 @@ module.exports = (databaseHelperFunctions) => {
   // add user to following
   router.post("/add", (req, res) => {
     const { userId } = req.session;
-    const { followId } = req.query;
+    const { followId } = req.body;
 
     databaseHelperFunctions
       .toggleFollower(userId, followId)
@@ -43,6 +43,34 @@ module.exports = (databaseHelperFunctions) => {
       .searchForUser(userId, username)
       .then((data) => res.json(data))
       .catch((err) => res.status(500).send(err));
+  });
+
+  // *********** SHOW USER DATA ************
+  router.get("/data", (req, res) => {
+    const { userId } = req.session;
+    const { startDate, endDate, userChoice } = req.query;
+
+    // control user inputs into sql query
+    const columnName = {
+      Calories: "calories",
+      Fat: "fat_in_g",
+      Carbohydrates: "carbs_in_g",
+      Fiber: "fiber_in_g",
+      Sugar: "sugar_in_g",
+      Protein: "protein_in_g",
+      Cholesterol: "cholesterol_in_mg",
+      Sodium: "sodium_in_mg",
+    };
+
+    // throw error if userChoice is not from object
+    if (!columnName[userChoice]) {
+      res.status(400);
+    } else {
+      databaseHelperFunctions
+        .displayUserData(userId, startDate, endDate, columnName[userChoice])
+        .then((data) => res.json(data))
+        .catch((err) => res.status(500).send(err));
+    }
   });
 
   return router;

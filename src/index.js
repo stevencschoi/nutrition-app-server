@@ -53,8 +53,10 @@ app.get("/", function (req, res) {
 
 // Separated routes on functionality
 const userRoutes = require("../routes/user");
+const favRoutes = require("../routes/favourites");
 
 app.use("/user", userRoutes(databaseHelperFunctions));
+app.use("/favourites", favRoutes(databaseHelperFunctions));
 
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
@@ -83,34 +85,6 @@ app.post("/logout", (req, res) => {
   res.send({});
 });
 
-// *********** SHOW USER DATA ************
-app.get("/displayUserData", (req, res) => {
-  const { userId } = req.session;
-  const { startDate, endDate, userChoice } = req.query;
-
-  // control user inputs into sql query
-  const columnName = {
-    Calories: "calories",
-    Fat: "fat_in_g",
-    Carbohydrates: "carbs_in_g",
-    Fiber: "fiber_in_g",
-    Sugar: "sugar_in_g",
-    Protein: "protein_in_g",
-    Cholesterol: "cholesterol_in_mg",
-    Sodium: "sodium_in_mg",
-  };
-
-  // throw error if userChoice is not from object
-  if (!columnName[userChoice]) {
-    res.status(400);
-  } else {
-    databaseHelperFunctions
-      .displayUserData(userId, startDate, endDate, columnName[userChoice])
-      .then((data) => res.json(data))
-      .catch((err) => res.status(500).send(err));
-  }
-});
-
 // ******************** FAVOURITES ********************
 
 // check if recipe exists
@@ -124,35 +98,35 @@ app.post("/checkRecipe", (req, res) => {
     .catch((err) => res.status(500).send(err));
 });
 
-// display user's favourite recipes
-app.get("/favourites", (req, res) => {
-  const { userId } = req.session;
-  console.log("thissss", userId);
-  databaseHelperFunctions
-    .getFavourites(userId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
+// // display user's favourite recipes
+// app.get("/favourites", (req, res) => {
+//   const { userId } = req.session;
+//   console.log("thissss", userId);
+//   databaseHelperFunctions
+//     .getFavourites(userId)
+//     .then((data) => res.json(data))
+//     .catch((err) => res.status(500).send(err));
+// });
 
-app.post("/addToFavourites", function (req, res) {
-  const { userId } = req.session;
-  const { recipeId } = req.body;
+// app.post("/addToFavourites", function (req, res) {
+//   const { userId } = req.session;
+//   const { recipeId } = req.body;
 
-  databaseHelperFunctions
-    .addToFavourites(userId, recipeId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
+//   databaseHelperFunctions
+//     .addToFavourites(userId, recipeId)
+//     .then((data) => res.json(data))
+//     .catch((err) => res.status(500).send(err));
+// });
 
-app.post("/deleteFavourite", (req, res) => {
-  const { userId } = req.session;
-  const { recipeId } = req.body;
-  console.log(userId, "recipeId", recipeId);
-  databaseHelperFunctions
-    .deleteFavourite(userId, recipeId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
+// app.post("/deleteFavourite", (req, res) => {
+//   const { userId } = req.session;
+//   const { recipeId } = req.body;
+//   console.log(userId, "recipeId", recipeId);
+//   databaseHelperFunctions
+//     .deleteFavourite(userId, recipeId)
+//     .then((data) => res.json(data))
+//     .catch((err) => res.status(500).send(err));
+// });
 
 // ******************** DAY SLOT MANAGEMENT ********************
 // display user's daily meal plan
