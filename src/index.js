@@ -84,9 +84,12 @@ app.post("/logout", (req, res) => {
 // ******************** FOLLOWING USERS ********************
 
 app.get("/getAllUsers", (req, res) => {
+  const { userId } = req.session;
   databaseHelperFunctions
-    .getAllUsers()
-    .then((data) => res.json(data))
+    .getAllUsers(userId)
+    .then((data) => {
+      res.json(data);
+    })
     .catch((err) => res.status(500).send(err));
 });
 
@@ -113,29 +116,33 @@ app.get("/searchForUser", (req, res) => {
 // add user to following
 app.post("/addUserToFollowing", (req, res) => {
   const { userId } = req.session;
-  const { followId } = req.body;
+  const { followId } = req.query;
+
+  console.log("userId", userId, "followId", followId);
 
   databaseHelperFunctions
-    .addUserToFollowing(userId, followId)
+    .toggleFollower(userId, followId)
     .then((data) => res.json(data))
     .catch((err) => res.status(500).send(err));
 });
 
 //delete user from following
-app.delete("/removeUserFromFollowing", (req, res) => {
-  const { userId } = req.session;
-  const { followId } = req.body;
+// app.delete("/removeUserFromFollowing", (req, res) => {
+//   const { userId } = req.session;
+//   const { followId } = req.body;
 
-  databaseHelperFunctions
-    .removeUserFromFollowing(userId, followId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
+//   databaseHelperFunctions
+//     .removeUserFromFollowing(userId, followId)
+//     .then((data) => res.json(data))
+//     .catch((err) => res.status(500).send(err));
+// });
 
 // *********** SHOW USER DATA ************
 app.get("/displayUserData", (req, res) => {
   const { userId } = req.session;
   const { startDate, endDate, userChoice } = req.query;
+
+  // control user inputs into sql query
   const columnName = {
     Calories: "calories",
     Fat: "fat_in_g",
@@ -147,10 +154,10 @@ app.get("/displayUserData", (req, res) => {
     Sodium: "sodium_in_mg",
   };
 
+  // throw error if userChoice is not from object
   if (!columnName[userChoice]) {
     res.status(400);
   } else {
-    console.log(startDate, endDate, userChoice);
     databaseHelperFunctions
       .displayUserData(userId, startDate, endDate, columnName[userChoice])
       .then((data) => res.json(data))
@@ -162,31 +169,6 @@ app.get("/displayUserData", (req, res) => {
 
 // check if recipe exists
 app.post("/checkRecipe", (req, res) => {
-  // const {
-  //   recipeName,
-  //   calories,
-  //   fatInG,
-  //   carbsInG,
-  //   proteinInG,
-  //   sugarInG,
-  //   fiberInG,
-  //   cholesterolInMg,
-  //   sodiumInMg,
-  //   imageUrl,
-  // } = req.query;
-  // databaseHelperFunctions
-  //   .checkRecipe(
-  //     recipeName,
-  //     calories,
-  //     fatInG,
-  //     carbsInG,
-  //     proteinInG,
-  //     sugarInG,
-  //     fiberInG,
-  //     cholesterolInMg,
-  //     sodiumInMg,
-  //     imageUrl
-  //   )
   const { recipeName } = req.query;
   databaseHelperFunctions
     .checkRecipe(recipeName)
@@ -242,7 +224,6 @@ app.get("/day", (req, res) => {
 app.post("/addRecipeToDay", (req, res) => {
   const { userId } = req.session;
   const { date, recipeId, mealNumber } = req.body;
-  console.log("date", date, "mealNumber:", mealNumber);
   databaseHelperFunctions
     .addRecipeToDay(userId, date, recipeId, mealNumber)
     .then((data) => res.json(data))
@@ -267,7 +248,7 @@ app.post("/editRecipe", (req, res) => {
     .catch((err) => console.error(err));
 });
 
-//********** ADD RECIPE */
+//********** ADD RECIPE //***********/
 // add recipe to recipe table
 app.post("/addRecipe", (req, res) => {
   const {
