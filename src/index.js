@@ -1,5 +1,7 @@
+// load .env data into process.env
 require("dotenv").config();
 
+// Web server config
 const PORT = process.env.PORT || 8008;
 const ENV = process.env.ENV || "development";
 const express = require("express");
@@ -24,13 +26,8 @@ wss.on("connection", (socket) => {
   };
 });
 
-// Load the logger first so all (static) HTTP requests are logged to STDOUT
-// 'dev' = Concise output colored by response status for development use.
-//         The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
-
 app.use(morgan("dev"));
 app.use(cors());
-// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser());
 
 // PG database client/connection setup
@@ -53,6 +50,11 @@ app.use(
 app.get("/", function (req, res) {
   res.send("We out here!");
 });
+
+// Separated routes on functionality
+const userRoutes = require("../routes/user");
+
+app.use("/user", userRoutes(databaseHelperFunctions));
 
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
@@ -79,51 +81,6 @@ app.post("/logout", (req, res) => {
   console.log("hitting logout route");
   req.session = null;
   res.send({});
-});
-
-// ******************** FOLLOWING USERS ********************
-
-app.get("/getAllUsers", (req, res) => {
-  const { userId } = req.session;
-  databaseHelperFunctions
-    .getAllUsers(userId)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => res.status(500).send(err));
-});
-
-// show users following
-app.get("/following", (req, res) => {
-  const { userId } = req.session;
-  databaseHelperFunctions
-    .getFollowingUsers(userId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// search for a particular user to follow
-app.get("/searchForUser", (req, res) => {
-  const { userId } = req.session;
-  const { username } = req.query;
-
-  databaseHelperFunctions
-    .searchForUser(userId, username)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// add user to following
-app.post("/addUserToFollowing", (req, res) => {
-  const { userId } = req.session;
-  const { followId } = req.query;
-
-  console.log("userId", userId, "followId", followId);
-
-  databaseHelperFunctions
-    .toggleFollower(userId, followId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
 });
 
 // *********** SHOW USER DATA ************
