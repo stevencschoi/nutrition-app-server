@@ -15,9 +15,9 @@ const io = require("socket.io")(server);
 
 // listen for socket connection
 io.on("connection", (client) => {
-  // when receiving this message type, update graphs
-  client.on("update", (e) => {
-    socket.emit("new data");
+  // when receiving this message type, emit update message
+  client.on("new", () => {
+    io.emit("update");
   });
 });
 

@@ -51,7 +51,6 @@ module.exports = (db) => {
         [userId]
       )
       .then((res) => {
-        console.log("These are teh followers", res.rows);
         return res.rows;
       })
       .catch((err) => console.error(err));
@@ -84,7 +83,6 @@ module.exports = (db) => {
           [userId, followId]
         )
         .then((res) => {
-          console.log("query result:", res.rows);
           return res.rows;
         })
         // if combination exists in following, delete from following db
@@ -128,7 +126,6 @@ module.exports = (db) => {
         [userId, startDate, endDate]
       )
       .then(async (res) => {
-        console.log("looking for follower userId", userId);
         const followers =
           getFollowers &&
           (await getFollowingUsers(userId).then((result) =>
@@ -143,7 +140,6 @@ module.exports = (db) => {
               )
             )
           ));
-        console.log("follower data", followers);
         return { userData: res.rows, followers, userId }; // returned object includes user data AND followers
       })
       .catch((err) => console.error(err));
@@ -175,7 +171,6 @@ module.exports = (db) => {
         [userId, recipeId]
       )
       .then((res) => {
-        console.log("addToFavourites function", res.rows);
         res.rows;
       })
       .catch((err) => {
@@ -231,7 +226,6 @@ module.exports = (db) => {
         [userId, date, recipeId, mealNumber]
       )
       .then((res) => {
-        console.log(res.rows);
         res.rows;
       })
       .catch((err) => console.error(err));
