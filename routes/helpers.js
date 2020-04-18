@@ -51,7 +51,7 @@ module.exports = (db) => {
         [userId]
       )
       .then((res) => {
-        console.log(res.rows);
+        console.log("These are teh followers", res.rows);
         return res.rows;
       })
       .catch((err) => console.error(err));
@@ -106,7 +106,16 @@ module.exports = (db) => {
 
   // *********** HELPER FUNCTION TO SHOW USER DATA ************
 
-  const displayUserData = (userId, startDate, endDate, userChoice) => {
+  const displayUserData = (
+    userId,
+    startDate,
+    endDate,
+    userChoice,
+    getFollowers
+  ) => {
+    // receive getFollowers (boolean) - if true, getFollowers false get only user
+    // based on getFollowers result, call getFollowers
+
     return db
       .query(
         `
@@ -118,7 +127,25 @@ module.exports = (db) => {
     `,
         [userId, startDate, endDate]
       )
-      .then((res) => res.rows)
+      .then(async (res) => {
+        console.log("looking for follower userId", userId);
+        const followers =
+          getFollowers &&
+          (await getFollowingUsers(userId).then((result) =>
+            Promise.all(
+              result.map((follower) =>
+                displayUserData(
+                  follower.follow_id,
+                  startDate,
+                  endDate,
+                  userChoice
+                )
+              )
+            )
+          ));
+        console.log("follower data", followers);
+        return { userData: res.rows, followers, userId }; // returned object includes user data AND followers
+      })
       .catch((err) => console.error(err));
   };
 

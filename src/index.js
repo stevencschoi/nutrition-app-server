@@ -11,19 +11,14 @@ const cors = require("cors");
 const morgan = require("morgan");
 const server = require("http").Server(app);
 const cookieSession = require("cookie-session");
+const io = require("socket.io")(server);
 
-// web socket for real-time data updating
-const WebSocket = require("ws");
-const wss = new WebSocket.Server({ server });
-
-wss.on("connection", (socket) => {
-  socket.onmessage = (event) => {
-    console.log(`Message Received: ${event.data}`);
-
-    if (event.data === "ping") {
-      socket.send(JSON.stringify("pong"));
-    }
-  };
+// listen for socket connection
+io.on("connection", (client) => {
+  // when receiving this message type, update graphs
+  client.on("update", (e) => {
+    socket.emit("new data");
+  });
 });
 
 app.use(morgan("dev"));

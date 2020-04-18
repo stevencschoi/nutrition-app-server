@@ -49,7 +49,6 @@ module.exports = (databaseHelperFunctions) => {
   router.get("/data", (req, res) => {
     const { userId } = req.session;
     const { startDate, endDate, userChoice } = req.query;
-
     // control user inputs into sql query
     const columnName = {
       Calories: "calories",
@@ -67,7 +66,13 @@ module.exports = (databaseHelperFunctions) => {
       res.status(400);
     } else {
       databaseHelperFunctions
-        .displayUserData(userId, startDate, endDate, columnName[userChoice])
+        .displayUserData(
+          userId,
+          startDate,
+          endDate,
+          columnName[userChoice],
+          true
+        )
         .then((data) => res.json(data))
         .catch((err) => res.status(500).send(err));
     }
