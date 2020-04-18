@@ -54,9 +54,11 @@ app.get("/", function (req, res) {
 // Separated routes on functionality
 const userRoutes = require("../routes/user");
 const favRoutes = require("../routes/favourites");
+const recipeRoutes = require("../routes/recipe");
 
 app.use("/user", userRoutes(databaseHelperFunctions));
 app.use("/favourites", favRoutes(databaseHelperFunctions));
+app.use("/recipe", recipeRoutes(databaseHelperFunctions));
 
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
@@ -84,49 +86,6 @@ app.post("/logout", (req, res) => {
   req.session = null;
   res.send({});
 });
-
-// ******************** FAVOURITES ********************
-
-// check if recipe exists
-app.post("/checkRecipe", (req, res) => {
-  const { recipeName } = req.query;
-  databaseHelperFunctions
-    .checkRecipe(recipeName)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => res.status(500).send(err));
-});
-
-// // display user's favourite recipes
-// app.get("/favourites", (req, res) => {
-//   const { userId } = req.session;
-//   console.log("thissss", userId);
-//   databaseHelperFunctions
-//     .getFavourites(userId)
-//     .then((data) => res.json(data))
-//     .catch((err) => res.status(500).send(err));
-// });
-
-// app.post("/addToFavourites", function (req, res) {
-//   const { userId } = req.session;
-//   const { recipeId } = req.body;
-
-//   databaseHelperFunctions
-//     .addToFavourites(userId, recipeId)
-//     .then((data) => res.json(data))
-//     .catch((err) => res.status(500).send(err));
-// });
-
-// app.post("/deleteFavourite", (req, res) => {
-//   const { userId } = req.session;
-//   const { recipeId } = req.body;
-//   console.log(userId, "recipeId", recipeId);
-//   databaseHelperFunctions
-//     .deleteFavourite(userId, recipeId)
-//     .then((data) => res.json(data))
-//     .catch((err) => res.status(500).send(err));
-// });
 
 // ******************** DAY SLOT MANAGEMENT ********************
 // display user's daily meal plan
@@ -165,42 +124,6 @@ app.post("/editRecipe", (req, res) => {
   databaseHelperFunctions
     .editRecipeFromDay(dateId)
     .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-//********** ADD RECIPE //***********/
-// add recipe to recipe table
-app.post("/addRecipe", (req, res) => {
-  const {
-    recipeName,
-    calories,
-    fatInG,
-    carbsInG,
-    proteinInG,
-    sugarInG,
-    fiberInG,
-    cholesterolInMg,
-    sodiumInMg,
-    imageUrl,
-  } = req.body;
-
-  databaseHelperFunctions
-    .addRecipe(
-      recipeName,
-      calories,
-      fatInG,
-      carbsInG,
-      proteinInG,
-      sugarInG,
-      fiberInG,
-      cholesterolInMg,
-      sodiumInMg,
-      imageUrl
-    )
-    .then((data) => {
-      console.log("the data is:", data);
-      res.json(data);
-    })
     .catch((err) => console.error(err));
 });
 
