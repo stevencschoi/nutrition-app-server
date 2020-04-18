@@ -45,9 +45,8 @@ module.exports = (db) => {
     return db
       .query(
         `
-    SELECT * FROM following
+    SELECT follow_id FROM following
     WHERE user_id = $1
-    RETURNING *;
     `,
         [userId]
       )
@@ -58,6 +57,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
+  // search for user
   const searchForUser = (username) => {
     return db
       .query(
@@ -72,6 +72,7 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
+  // toggle following user data
   const toggleFollower = (userId, followId) => {
     return (
       db
@@ -103,19 +104,6 @@ module.exports = (db) => {
     );
   };
 
-  const removeUserFromFollowing = (userId, followId) => {
-    return db
-      .query(
-        `
-    DELETE FROM following
-    WHERE user_id = $1 AND follower_id = $2;
-      `,
-        [userId, followId]
-      )
-      .then((res) => res.rows)
-      .catch((err) => console.error(err));
-  };
-
   // *********** HELPER FUNCTION TO SHOW USER DATA ************
 
   const displayUserData = (userId, startDate, endDate, userChoice) => {
@@ -133,21 +121,6 @@ module.exports = (db) => {
       .then((res) => res.rows)
       .catch((err) => console.error(err));
   };
-
-  // const displayUserDataSum = (userId, date, recipeId) => {
-  //   return db
-  //     .query(
-  //       `
-  //   SELECT * FROM recipes
-  //   JOIN dates on recipe_id = recipes.id
-  //   WHERE user_id = $1 AND date = $2
-  //   ORDER BY meal_number
-  //   `,
-  //       [userId, date]
-  //     )
-  //     .then((res) => res.rows)
-  //     .catch((err) => console.error(err));
-  // };
 
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
   const getFavourites = (userId) => {
@@ -325,7 +298,6 @@ module.exports = (db) => {
     getFollowingUsers,
     searchForUser,
     toggleFollower,
-    removeUserFromFollowing,
     displayUserData,
     getFavourites,
     addToFavourites,
