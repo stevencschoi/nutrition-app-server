@@ -1,5 +1,7 @@
+// load .env data into process.env
 require("dotenv").config();
 
+// Web server config
 const PORT = process.env.PORT || 8008;
 const ENV = process.env.ENV || "development";
 const express = require("express");
@@ -24,13 +26,8 @@ wss.on("connection", (socket) => {
   };
 });
 
-// Load the logger first so all (static) HTTP requests are logged to STDOUT
-// 'dev' = Concise output colored by response status for development use.
-//         The :status token will be colored red for server error codes, yellow for client error codes, cyan for redirection codes, and uncolored for all other codes.
-
 app.use(morgan("dev"));
 app.use(cors());
-// app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser());
 
 // PG database client/connection setup
@@ -53,6 +50,17 @@ app.use(
 app.get("/", function (req, res) {
   res.send("We out here!");
 });
+
+// Separated routes on functionality
+const userRoutes = require("../routes/user");
+const favRoutes = require("../routes/favourites");
+const recipeRoutes = require("../routes/recipe");
+const dayRoutes = require("../routes/day");
+
+app.use("/user", userRoutes(databaseHelperFunctions));
+app.use("/favourites", favRoutes(databaseHelperFunctions));
+app.use("/recipe", recipeRoutes(databaseHelperFunctions));
+app.use("/day", dayRoutes(databaseHelperFunctions));
 
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
@@ -79,198 +87,6 @@ app.post("/logout", (req, res) => {
   console.log("hitting logout route");
   req.session = null;
   res.send({});
-});
-
-// ******************** FOLLOWING USERS ********************
-
-app.get("/getAllUsers", (req, res) => {
-  const { userId } = req.session;
-  databaseHelperFunctions
-    .getAllUsers(userId)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => res.status(500).send(err));
-});
-
-// show users following
-app.get("/following", (req, res) => {
-  const { userId } = req.session;
-  databaseHelperFunctions
-    .getFollowingUsers(userId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// search for a particular user to follow
-app.get("/searchForUser", (req, res) => {
-  const { userId } = req.session;
-  const { username } = req.query;
-
-  databaseHelperFunctions
-    .searchForUser(userId, username)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// add user to following
-app.post("/addUserToFollowing", (req, res) => {
-  const { userId } = req.session;
-  const { followId } = req.query;
-
-  console.log("userId", userId, "followId", followId);
-
-  databaseHelperFunctions
-    .toggleFollower(userId, followId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// *********** SHOW USER DATA ************
-app.get("/displayUserData", (req, res) => {
-  const { userId } = req.session;
-  const { startDate, endDate, userChoice } = req.query;
-
-  // control user inputs into sql query
-  const columnName = {
-    Calories: "calories",
-    Fat: "fat_in_g",
-    Carbohydrates: "carbs_in_g",
-    Fiber: "fiber_in_g",
-    Sugar: "sugar_in_g",
-    Protein: "protein_in_g",
-    Cholesterol: "cholesterol_in_mg",
-    Sodium: "sodium_in_mg",
-  };
-
-  // throw error if userChoice is not from object
-  if (!columnName[userChoice]) {
-    res.status(400);
-  } else {
-    databaseHelperFunctions
-      .displayUserData(userId, startDate, endDate, columnName[userChoice])
-      .then((data) => res.json(data))
-      .catch((err) => res.status(500).send(err));
-  }
-});
-
-// ******************** FAVOURITES ********************
-
-// check if recipe exists
-app.post("/checkRecipe", (req, res) => {
-  const { recipeName } = req.query;
-  databaseHelperFunctions
-    .checkRecipe(recipeName)
-    .then((data) => {
-      res.json(data);
-    })
-    .catch((err) => res.status(500).send(err));
-});
-
-// display user's favourite recipes
-app.get("/favourites", (req, res) => {
-  const { userId } = req.session;
-  console.log("thissss", userId);
-  databaseHelperFunctions
-    .getFavourites(userId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-app.post("/addToFavourites", function (req, res) {
-  const { userId } = req.session;
-  const { recipeId } = req.body;
-
-  databaseHelperFunctions
-    .addToFavourites(userId, recipeId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-app.post("/deleteFavourite", (req, res) => {
-  const { userId } = req.session;
-  const { recipeId } = req.body;
-  console.log(userId, "recipeId", recipeId);
-  databaseHelperFunctions
-    .deleteFavourite(userId, recipeId)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// ******************** DAY SLOT MANAGEMENT ********************
-// display user's daily meal plan
-app.get("/day", (req, res) => {
-  const { userId } = req.session;
-  const { date } = req.query;
-
-  databaseHelperFunctions
-    .getRecipesForDay(userId, date)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// add recipe to date
-app.post("/addRecipeToDay", (req, res) => {
-  const { userId } = req.session;
-  const { date, recipeId, mealNumber } = req.body;
-  databaseHelperFunctions
-    .addRecipeToDay(userId, date, recipeId, mealNumber)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-// delete recipe from meal plan
-app.post("/deleteFromDay", (req, res) => {
-  const { dateId } = req.body;
-  databaseHelperFunctions
-    .deleteFromDay(dateId)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-// edit recipe in a day
-app.post("/editRecipe", (req, res) => {
-  const { dateId } = req.body;
-  databaseHelperFunctions
-    .editRecipeFromDay(dateId)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-//********** ADD RECIPE //***********/
-// add recipe to recipe table
-app.post("/addRecipe", (req, res) => {
-  const {
-    recipeName,
-    calories,
-    fatInG,
-    carbsInG,
-    proteinInG,
-    sugarInG,
-    fiberInG,
-    cholesterolInMg,
-    sodiumInMg,
-    imageUrl,
-  } = req.body;
-
-  databaseHelperFunctions
-    .addRecipe(
-      recipeName,
-      calories,
-      fatInG,
-      carbsInG,
-      proteinInG,
-      sugarInG,
-      fiberInG,
-      cholesterolInMg,
-      sodiumInMg,
-      imageUrl
-    )
-    .then((data) => {
-      console.log("the data is:", data);
-      res.json(data);
-    })
-    .catch((err) => console.error(err));
 });
 
 // Change the 404 message modifing the middleware
