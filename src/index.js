@@ -55,10 +55,12 @@ app.get("/", function (req, res) {
 const userRoutes = require("../routes/user");
 const favRoutes = require("../routes/favourites");
 const recipeRoutes = require("../routes/recipe");
+const dayRoutes = require("../routes/day");
 
 app.use("/user", userRoutes(databaseHelperFunctions));
 app.use("/favourites", favRoutes(databaseHelperFunctions));
 app.use("/recipe", recipeRoutes(databaseHelperFunctions));
+app.use("/day", dayRoutes(databaseHelperFunctions));
 
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
@@ -85,46 +87,6 @@ app.post("/logout", (req, res) => {
   console.log("hitting logout route");
   req.session = null;
   res.send({});
-});
-
-// ******************** DAY SLOT MANAGEMENT ********************
-// display user's daily meal plan
-app.get("/day", (req, res) => {
-  const { userId } = req.session;
-  const { date } = req.query;
-
-  databaseHelperFunctions
-    .getRecipesForDay(userId, date)
-    .then((data) => res.json(data))
-    .catch((err) => res.status(500).send(err));
-});
-
-// add recipe to date
-app.post("/addRecipeToDay", (req, res) => {
-  const { userId } = req.session;
-  const { date, recipeId, mealNumber } = req.body;
-  databaseHelperFunctions
-    .addRecipeToDay(userId, date, recipeId, mealNumber)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-// delete recipe from meal plan
-app.post("/deleteFromDay", (req, res) => {
-  const { dateId } = req.body;
-  databaseHelperFunctions
-    .deleteFromDay(dateId)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
-});
-
-// edit recipe in a day
-app.post("/editRecipe", (req, res) => {
-  const { dateId } = req.body;
-  databaseHelperFunctions
-    .editRecipeFromDay(dateId)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
 });
 
 // Change the 404 message modifing the middleware
