@@ -15,6 +15,7 @@ const io = require("socket.io")(server);
 
 // listen for socket connection
 io.on("connection", (client) => {
+  console.log("A user connected");
   // when receiving this message type, emit update message
   client.on("new", () => {
     io.emit("update");
