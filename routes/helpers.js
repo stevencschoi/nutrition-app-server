@@ -113,14 +113,14 @@ module.exports = (db) => {
   ) => {
     // receive getFollowers (boolean) - if true, getFollowers false get only user
     // based on getFollowers result, call getFollowers
-
     return db
       .query(
         `
-    SELECT date_trunc('day',date), SUM(recipes.${userChoice}) FROM recipes
+    SELECT date_trunc('day',date), users.username, SUM(recipes.${userChoice}) FROM recipes
     JOIN dates on recipe_id = recipes.id
+    JOIN users on user_id = users.id
     WHERE user_id = $1 AND date BETWEEN $2 AND $3
-    GROUP BY date_trunc('day', date)
+    GROUP BY date_trunc('day', date), username
     ORDER BY date_trunc
     `,
         [userId, startDate, endDate]
@@ -144,6 +144,48 @@ module.exports = (db) => {
       })
       .catch((err) => console.error(err));
   };
+
+
+  // const displayUserData = (
+  //   userId,
+  //   startDate,
+  //   endDate,
+  //   userChoice,
+  //   getFollowers
+  // ) => {
+  //   // receive getFollowers (boolean) - if true, getFollowers false get only user
+  //   // based on getFollowers result, call getFollowers
+
+  //   return db
+  //     .query(
+  //       `
+  //   SELECT date_trunc('day',date), SUM(recipes.${userChoice}) FROM recipes
+  //   JOIN dates on recipe_id = recipes.id
+  //   WHERE user_id = $1 AND date BETWEEN $2 AND $3
+  //   GROUP BY date_trunc('day', date)
+  //   ORDER BY date_trunc
+  //   `,
+  //       [userId, startDate, endDate]
+  //     )
+  //     .then(async (res) => {
+  //       const followers =
+  //         getFollowers &&
+  //         (await getFollowingUsers(userId).then((result) =>
+  //           Promise.all(
+  //             result.map((follower) =>
+  //               displayUserData(
+  //                 follower.follow_id,
+  //                 startDate,
+  //                 endDate,
+  //                 userChoice
+  //               )
+  //             )
+  //           )
+  //         ));
+  //       return { userData: res.rows, followers, userId }; // returned object includes user data AND followers
+  //     })
+  //     .catch((err) => console.error(err));
+  // };
 
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
   const getFavourites = (userId) => {
