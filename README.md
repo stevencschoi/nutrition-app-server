@@ -12,12 +12,8 @@ git clone
 
 This project operates on the following dependencies:
 
-- Postgres [install postgres](https://www.postgresql.org/)
-- Nodejs [install node.js](https://nodejs.org/en/)
-
-```
-Give examples
-```
+- Postgres: [install postgres](https://www.postgresql.org/)
+- Nodejs: [install node.js](https://nodejs.org/en/)
 
 ### Installing
 
@@ -31,8 +27,16 @@ CREATE DATABASE vegtable_development OWNER vegtable
 run migrations (schema)
 run seeds (default users, favorites, default data, etc.)
 
+Example schema import:
+
 ```
-psql \i ...
+psql \i db/schema/01_users.sql
+```
+
+Example seed import:
+
+```
+psql \i db/seeds/01_users.sql
 ```
 
 install packages
@@ -51,14 +55,10 @@ npm run start
 
 Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
 
-fork repo
-work in feature branch
-push up and make pull request
-
 ## Deployment
 
 ```
-git push heroku master
+<!-- git push heroku master -->
 ```
 
 ## Built With
