@@ -29,7 +29,7 @@ module.exports = (databaseHelperFunctions) => {
       imageUrl,
       recipe_yield,
     } = req.body;
-    console.log("recipe_yield:", recipe_yield)
+    // console.log("recipe_yield:", recipe_yield)
     databaseHelperFunctions
       .addRecipe(
         recipeName,
@@ -41,7 +41,8 @@ module.exports = (databaseHelperFunctions) => {
         fiberInG,
         cholesterolInMg,
         sodiumInMg,
-        imageUrl
+        imageUrl,
+        recipe_yield
       )
       .then((data) => {
         console.log("the data is:", data);
