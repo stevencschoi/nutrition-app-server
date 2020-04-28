@@ -27,8 +27,9 @@ module.exports = (databaseHelperFunctions) => {
       cholesterolInMg,
       sodiumInMg,
       imageUrl,
+      recipe_yield,
     } = req.body;
-
+    console.log("recipe_yield:", recipe_yield)
     databaseHelperFunctions
       .addRecipe(
         recipeName,

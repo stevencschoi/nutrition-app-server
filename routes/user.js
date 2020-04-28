@@ -49,6 +49,7 @@ module.exports = (databaseHelperFunctions) => {
   router.get("/data", (req, res) => {
     const { userId } = req.session;
     const { startDate, endDate, userChoice } = req.query;
+    console.log(userId, startDate, endDate, userChoice)
     // control user inputs into sql query
     const columnName = {
       Calories: "calories",
