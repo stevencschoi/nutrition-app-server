@@ -10,5 +10,6 @@ CREATE TABLE recipes (
   fiber_in_g NUMERIC(6,2),
   cholesterol_in_mg NUMERIC(6,2),
   sodium_in_mg NUMERIC(6,2),
-  image_url TEXT
+  image_url TEXT,
+  recipe_yield INTEGER
 );
