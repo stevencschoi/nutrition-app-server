@@ -60,9 +60,10 @@ app.use("/day", dayRoutes(databaseHelperFunctions));
 
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
-  const { username, name, email, password, avatar } = req.body;
+  const { username, first_name, last_name, email, password, avatar } = req.body;
+  console.log(req.body);
   databaseHelperFunctions
-    .register(username, name, email, password, avatar)
+    .register(username, first_name, last_name, email, password, avatar)
     .then((data) => res.json(data))
     .catch((err) => console.error(err));
 });
