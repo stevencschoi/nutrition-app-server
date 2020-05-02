@@ -3,9 +3,9 @@ module.exports = (db) => {
   const register = () => {
     return db
       .query(
-        `INSERT INTO users (username, name, email, password, avatar)
-    VALUES ($1, $2, $3, $4, $5)`,
-        [username, name, email, password, avatar]
+        `INSERT INTO users (username, first_name, last_name, email, password, avatar)
+    VALUES ($1, $2, $3, $4, $5, $6)`,
+        [username, first_name, last_name, email, password, avatar]
       )
       .then((res) => res.rows)
       .catch((err) => console.error(err));
@@ -144,7 +144,6 @@ module.exports = (db) => {
       })
       .catch((err) => console.error(err));
   };
-
 
   // const displayUserData = (
   //   userId,
