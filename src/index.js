@@ -108,7 +108,7 @@ app.post("/login", (req, res) => {
         );
         // if (bcrypt.compareSync(password, user[0].password)) {
         req.session.userId = user[0].id;
-        req.session.first_name = user[0].first_name;
+        // req.session.first_name = user[0].first_name;
         res.json(user[0]);
         // }
       }
@@ -117,7 +117,6 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/logout", (req, res) => {
-  console.log("hitting logout route");
   req.session = null;
   res.redirect("/");
 });
