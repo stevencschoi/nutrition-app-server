@@ -82,6 +82,7 @@ app.put("/register", function (req, res) {
 
     databaseHelperFunctions
       .register(username, first_name, last_name, email, password, avatar)
+      // .register(username, first_name, last_name, email, hashedPassword, avatar)
       .then((data) => res.json(data))
       .catch((err) => console.error(err));
   }
@@ -97,10 +98,19 @@ app.post("/login", (req, res) => {
         // if user does not exist, throw error
         return res.status(400).send("Bad response");
       } else {
-        console.log(user[0].id, user[0].first_name, user[0].password);
+        console.log(
+          "From login: User ID",
+          user[0].id,
+          "First name",
+          user[0].first_name,
+          "Password",
+          user[0].password
+        );
+        // if (bcrypt.compareSync(password, user[0].password)) {
         req.session.userId = user[0].id;
         req.session.first_name = user[0].first_name;
         res.json(user[0]);
+        // }
       }
     })
     .catch((err) => res.send(err));
