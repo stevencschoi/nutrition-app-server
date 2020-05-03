@@ -11,6 +11,7 @@ const cors = require("cors");
 const morgan = require("morgan");
 const server = require("http").Server(app);
 const cookieSession = require("cookie-session");
+const bcrypt = require("bcrypt");
 const io = require("socket.io")(server);
 
 // listen for socket connection
@@ -60,22 +61,47 @@ app.use("/day", dayRoutes(databaseHelperFunctions));
 
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
-  const { username, first_name, last_name, email, password, avatar } = req.body;
-  console.log(req.body);
-  databaseHelperFunctions
-    .register(username, first_name, last_name, email, password, avatar)
-    .then((data) => res.json(data))
-    .catch((err) => console.error(err));
+  // create & store user info
+  // conditionals if empty strings entered
+  if (
+    req.body.username === "" ||
+    req.body.email === "" ||
+    req.body.password === ""
+  ) {
+    return res.status(400).send("Bad request");
+  } else {
+    let { username, first_name, last_name, email, password, avatar } = req.body;
+    console.log("req.body:", req.body);
+    if (!avatar) {
+      avatar =
+        "https://cdn.dribbble.com/users/2319/screenshots/1658343/knife_and_fork.png";
+    }
+
+    const hashedPassword = bcrypt.hashSync(password, 10);
+    console.log("Hashed password:", hashedPassword);
+
+    databaseHelperFunctions
+      .register(username, first_name, last_name, email, password, avatar)
+      .then((data) => res.json(data))
+      .catch((err) => console.error(err));
+  }
 });
 
 app.post("/login", (req, res) => {
-  const { userId } = req.body;
+  const { userId, password } = req.body;
+
   databaseHelperFunctions
-    .login(userId)
+    .login(userId, password)
     .then((user) => {
-      console.log(user[0].id);
-      req.session.userId = user[0].id;
-      res.json(user[0]);
+      if (!user[0]) {
+        // if user does not exist, throw error
+        return res.status(400).send("Bad response");
+      } else {
+        console.log(user[0].id, user[0].first_name, user[0].password);
+        req.session.userId = user[0].id;
+        req.session.first_name = user[0].first_name;
+        res.json(user[0]);
+      }
     })
     .catch((err) => res.send(err));
 });
@@ -83,7 +109,7 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   console.log("hitting logout route");
   req.session = null;
-  res.send({});
+  res.redirect("/");
 });
 
 // Change the 404 message modifing the middleware
