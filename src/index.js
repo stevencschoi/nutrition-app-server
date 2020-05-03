@@ -62,17 +62,26 @@ app.use("/day", dayRoutes(databaseHelperFunctions));
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
   // create & store user info
-  // conditionals if user exists or empty strings entered
-  if (req.body.email === "" || req.body.password === "") {
+  // conditionals if empty strings entered
+  if (
+    req.body.username === "" ||
+    req.body.email === "" ||
+    req.body.password === ""
+  ) {
     return res.status(400).send("Bad request");
   } else {
-    const { username, first_name, last_name, email, password } = req.body;
+    let { username, first_name, last_name, email, password, avatar } = req.body;
     console.log("req.body:", req.body);
+    if (!avatar) {
+      avatar =
+        "https://cdn.dribbble.com/users/2319/screenshots/1658343/knife_and_fork.png";
+    }
+
     const hashedPassword = bcrypt.hashSync(password, 10);
     console.log("Hashed password:", hashedPassword);
 
     databaseHelperFunctions
-      .register(username, first_name, last_name, email, hashedPassword)
+      .register(username, first_name, last_name, email, password, avatar)
       .then((data) => res.json(data))
       .catch((err) => console.error(err));
   }
@@ -88,7 +97,7 @@ app.post("/login", (req, res) => {
         // if user does not exist, throw error
         return res.status(400).send("Bad response");
       } else {
-        console.log(user[0].id, user[0].first_name);
+        console.log(user[0].id, user[0].first_name, user[0].password);
         req.session.userId = user[0].id;
         req.session.first_name = user[0].first_name;
         res.json(user[0]);

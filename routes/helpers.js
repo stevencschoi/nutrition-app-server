@@ -1,20 +1,32 @@
 module.exports = (db) => {
   // *********** HELPER FUNCTIONS FOR USER ROUTES ************
   const verifyUser = (userId) => {
-    return db.query(
-      `
-    SELECT * FROM users
-    WHERE username = $1`,
-      [username]
-    );
-  };
-
-  const register = () => {
     return db
       .query(
-        `INSERT INTO users (username, first_name, last_name, email, password
-    VALUES ($1, $2, $3, $4, $5)`,
-        [username, first_name, last_name, email, password]
+        `
+    SELECT * FROM users
+    WHERE username = $1`,
+        [username]
+      )
+      .then((res) => {
+        res.rows[0] ? true : false;
+      })
+      .catch((err) => console.error(err));
+  };
+
+  const register = (
+    username,
+    first_name,
+    last_name,
+    email,
+    password,
+    avatar
+  ) => {
+    return db
+      .query(
+        `INSERT INTO users (username, first_name, last_name, email, password, avatar)
+        VALUES ($1, $2, $3, $4, $5, $6)`,
+        [username, first_name, last_name, email, password, avatar]
       )
       .then((res) => res.rows)
       .catch((err) => console.error(err));
@@ -368,6 +380,7 @@ module.exports = (db) => {
   };
 
   return {
+    verifyUser,
     register,
     login,
     getAllUsers,
