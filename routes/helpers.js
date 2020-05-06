@@ -140,13 +140,41 @@ module.exports = (db) => {
     return db
       .query(
         `
-    SELECT date_trunc('day',date), users.username, SUM(recipes.${userChoice}) FROM recipes
-    JOIN dates on recipe_id = recipes.id
-    JOIN users on user_id = users.id
-    WHERE user_id = $1 AND date BETWEEN $2 AND $3
-    GROUP BY date_trunc('day', date), username
-    ORDER BY date_trunc
-    `,
+          WITH pick AS(
+            SELECT
+              date_trunc('day', date),
+              users.username,
+              SUM(recipes.${ userChoice }) 
+            FROM recipes
+            JOIN dates on recipe_id = recipes.id
+            JOIN users on user_id = users.id
+            WHERE user_id = $1 AND date BETWEEN $2 AND $3
+            GROUP BY date_trunc('day', date), username
+            ORDER BY date_trunc
+          ), follower AS(
+            SELECT
+              users.username
+            FROM recipes
+            JOIN dates on recipe_id = recipes.id
+            JOIN users on user_id = users.id
+            WHERE user_id = $1
+            GROUP BY username
+          )
+
+          SELECT 
+            x.date_trunc AS date,
+            (SELECT * FROM follower) AS username,
+            COALESCE(t.sum, 0) AS sum
+          FROM(
+            SELECT generate_series(
+              $2:: timestamp,
+              $3,
+              '1 day'):: date AS date_trunc
+          FROM pick) x
+            LEFT JOIN pick t USING(date_trunc)
+            GROUP BY x.date_trunc, t.username, t.sum
+            ORDER BY x.date_trunc
+        `,
         [userId, startDate, endDate]
       )
       .then(async (res) => {
