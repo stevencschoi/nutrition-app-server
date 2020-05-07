@@ -80,6 +80,23 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
+  // get following username
+  // const getFollowingUsername = (userId) => {
+  //   return db
+  //     .query(
+  //       `
+  //         SELECT username
+  //         FROM users
+  //         WHERE id = (SELECT follow_id FROM following WHERE user_id = $1)
+  //       `,
+  //       [userId]
+  //     )
+  //     .then((res) => {
+  //       return res.rows;
+  //     })
+  //     .catch((err) => console.error(err));
+  // };
+
   // search for user
   const searchForUser = (username) => {
     return db
@@ -413,6 +430,7 @@ module.exports = (db) => {
     login,
     getAllUsers,
     getFollowingUsers,
+    // getFollowingUsername,
     searchForUser,
     toggleFollower,
     displayUserData,
