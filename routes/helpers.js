@@ -155,9 +155,13 @@ module.exports = (db) => {
     // receive getFollowers (boolean) - if true, getFollowers false get only user
     // based on getFollowers result, call getFollowers
     return db
+      // WITH creates temporary tables current_data and current_username exist for just one query
+      // generate_series creates a helper table to fill in missing rows if data does not exist for a certain day
+      // COALESCE accepts an unlimited number of arguments and returns the first argument that is not null
+      // If all arguments are null, the COALESCE will return null.
       .query(
         `
-          WITH pick AS(
+          WITH current_data AS(
             SELECT
               date_trunc('day', date),
               users.username,
@@ -168,7 +172,7 @@ module.exports = (db) => {
             WHERE user_id = $1 AND date BETWEEN $2 AND $3
             GROUP BY date_trunc('day', date), username
             ORDER BY date_trunc
-          ), follower AS(
+          ), current_username AS(
             SELECT
               users.username
             FROM recipes
@@ -179,18 +183,18 @@ module.exports = (db) => {
           )
 
           SELECT 
-            x.date_trunc AS date,
-            (SELECT * FROM follower) AS username,
-            COALESCE(t.sum, 0) AS sum
+            a.date_trunc AS date,
+            (SELECT * FROM current_username) AS username,
+            COALESCE(b.sum, 0) AS sum
           FROM(
             SELECT generate_series(
               $2:: timestamp,
               $3,
               '1 day'):: date AS date_trunc
-          FROM pick) x
-            LEFT JOIN pick t USING(date_trunc)
-            GROUP BY x.date_trunc, t.username, t.sum
-            ORDER BY x.date_trunc
+          FROM current_data) a
+            LEFT JOIN current_data b USING(date_trunc)
+            GROUP BY a.date_trunc, username, b.sum
+            ORDER BY a.date_trunc
         `,
         [userId, startDate, endDate]
       )
