@@ -49,7 +49,6 @@ module.exports = (db) => {
   };
 
   // *********** HELPER FUNCTIONS FOR FOLLOWING USERS ************
-
   const getAllUsers = (userId) => {
     return db
       .query(
@@ -144,7 +143,6 @@ module.exports = (db) => {
   };
 
   // *********** HELPER FUNCTION TO SHOW USER DATA ************
-
   const displayUserData = (
     userId,
     startDate,
@@ -155,7 +153,7 @@ module.exports = (db) => {
     // receive getFollowers (boolean) - if true, getFollowers false get only user
     // based on getFollowers result, call getFollowers
     return db
-      // WITH creates temporary tables current_data and current_username exist for just one query
+      // WITH creates temporary tables current_data and current_username that exist for just one query
       // generate_series creates a helper table to fill in missing rows if data does not exist for a certain day
       // COALESCE accepts an unlimited number of arguments and returns the first argument that is not null
       // If all arguments are null, the COALESCE will return null.
@@ -204,7 +202,6 @@ module.exports = (db) => {
           (await getFollowingUsers(userId).then((result) =>
             Promise.all(
               result.map((follower) =>
-              
                 displayUserData(
                   follower.follow_id,
                   startDate,
@@ -218,47 +215,6 @@ module.exports = (db) => {
       })
       .catch((err) => console.error(err));
   };
-
-  // const displayUserData = (
-  //   userId,
-  //   startDate,
-  //   endDate,
-  //   userChoice,
-  //   getFollowers
-  // ) => {
-  //   // receive getFollowers (boolean) - if true, getFollowers false get only user
-  //   // based on getFollowers result, call getFollowers
-
-  //   return db
-  //     .query(
-  //       `
-  //   SELECT date_trunc('day',date), SUM(recipes.${userChoice}) FROM recipes
-  //   JOIN dates on recipe_id = recipes.id
-  //   WHERE user_id = $1 AND date BETWEEN $2 AND $3
-  //   GROUP BY date_trunc('day', date)
-  //   ORDER BY date_trunc
-  //   `,
-  //       [userId, startDate, endDate]
-  //     )
-  //     .then(async (res) => {
-  //       const followers =
-  //         getFollowers &&
-  //         (await getFollowingUsers(userId).then((result) =>
-  //           Promise.all(
-  //             result.map((follower) =>
-  //               displayUserData(
-  //                 follower.follow_id,
-  //                 startDate,
-  //                 endDate,
-  //                 userChoice
-  //               )
-  //             )
-  //           )
-  //         ));
-  //       return { userData: res.rows, followers, userId }; // returned object includes user data AND followers
-  //     })
-  //     .catch((err) => console.error(err));
-  // };
 
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
   const getFavourites = (userId) => {
