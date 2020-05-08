@@ -79,5 +79,16 @@ module.exports = (databaseHelperFunctions) => {
     }
   });
 
+
+  // *********** SHOW FOLLOWING USER USERNAME ************
+  router.get("/followername", (req, res) => {
+    const { userId } = req.query;
+    console.log("YOOOOOO", userId)
+    databaseHelperFunctions
+      .getFollowingUsername(userId)
+      .then((data) => res.json(data))
+      .catch((err) => res.status(500).send(err));
+  })
+
   return router;
 };

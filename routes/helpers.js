@@ -81,21 +81,21 @@ module.exports = (db) => {
   };
 
   // get following username
-  // const getFollowingUsername = (userId) => {
-  //   return db
-  //     .query(
-  //       `
-  //         SELECT username
-  //         FROM users
-  //         WHERE id = (SELECT follow_id FROM following WHERE user_id = $1)
-  //       `,
-  //       [userId]
-  //     )
-  //     .then((res) => {
-  //       return res.rows;
-  //     })
-  //     .catch((err) => console.error(err));
-  // };
+  const getFollowingUsername = (userId) => {
+    return db
+      .query(
+        `
+          SELECT username
+          FROM users
+          WHERE id = $1
+        `,
+        [userId]
+      )
+      .then((res) => {
+        return res.rows;
+      })
+      .catch((err) => console.error(err));
+  };
 
   // search for user
   const searchForUser = (username) => {
@@ -200,6 +200,7 @@ module.exports = (db) => {
           (await getFollowingUsers(userId).then((result) =>
             Promise.all(
               result.map((follower) =>
+              
                 displayUserData(
                   follower.follow_id,
                   startDate,
@@ -430,7 +431,7 @@ module.exports = (db) => {
     login,
     getAllUsers,
     getFollowingUsers,
-    // getFollowingUsername,
+    getFollowingUsername,
     searchForUser,
     toggleFollower,
     displayUserData,
