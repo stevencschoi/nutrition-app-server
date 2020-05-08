@@ -81,7 +81,7 @@ module.exports = (databaseHelperFunctions) => {
 
 
   // *********** SHOW FOLLOWING USER USERNAME ************
-  router.get("/followingname", (req, res) => {
+  router.get("/followingusername", (req, res) => {
     const { userId } = req.query;
     console.log("YOOOOOO", userId)
     databaseHelperFunctions
