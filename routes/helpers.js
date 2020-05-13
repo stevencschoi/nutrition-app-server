@@ -49,7 +49,6 @@ module.exports = (db) => {
   };
 
   // *********** HELPER FUNCTIONS FOR FOLLOWING USERS ************
-
   const getAllUsers = (userId) => {
     return db
       .query(
@@ -72,6 +71,23 @@ module.exports = (db) => {
     SELECT follow_id FROM following
     WHERE user_id = $1
     `,
+        [userId]
+      )
+      .then((res) => {
+        return res.rows;
+      })
+      .catch((err) => console.error(err));
+  };
+
+  // get following username
+  const getFollowingUsername = (userId) => {
+    return db
+      .query(
+        `
+          SELECT username
+          FROM users
+          WHERE id = $1
+        `,
         [userId]
       )
       .then((res) => {
@@ -127,7 +143,6 @@ module.exports = (db) => {
   };
 
   // *********** HELPER FUNCTION TO SHOW USER DATA ************
-
   const displayUserData = (
     userId,
     startDate,
@@ -138,15 +153,47 @@ module.exports = (db) => {
     // receive getFollowers (boolean) - if true, getFollowers false get only user
     // based on getFollowers result, call getFollowers
     return db
+      // WITH creates temporary tables current_data and current_username that exist for just one query
+      // generate_series creates a helper table to fill in missing rows if data does not exist for a certain day
+      // COALESCE accepts an unlimited number of arguments and returns the first argument that is not null
+      // If all arguments are null, the COALESCE will return null.
       .query(
         `
-    SELECT date_trunc('day',date), users.username, SUM(recipes.${userChoice}) FROM recipes
-    JOIN dates on recipe_id = recipes.id
-    JOIN users on user_id = users.id
-    WHERE user_id = $1 AND date BETWEEN $2 AND $3
-    GROUP BY date_trunc('day', date), username
-    ORDER BY date_trunc
-    `,
+          WITH current_data AS(
+            SELECT
+              date_trunc('day', date),
+              users.username,
+              SUM(recipes.${ userChoice }) 
+            FROM recipes
+            JOIN dates on recipe_id = recipes.id
+            JOIN users on user_id = users.id
+            WHERE user_id = $1 AND date BETWEEN $2 AND $3
+            GROUP BY date_trunc('day', date), username
+            ORDER BY date_trunc
+          ), current_username AS(
+            SELECT
+              users.username
+            FROM recipes
+            JOIN dates on recipe_id = recipes.id
+            JOIN users on user_id = users.id
+            WHERE user_id = $1
+            GROUP BY username
+          )
+
+          SELECT 
+            a.date_trunc AS date,
+            (SELECT * FROM current_username) AS username,
+            COALESCE(b.sum, 0) AS sum
+          FROM(
+            SELECT generate_series(
+              $2:: timestamp,
+              $3,
+              '1 day'):: date AS date_trunc
+          FROM current_data) a
+            LEFT JOIN current_data b USING(date_trunc)
+            GROUP BY a.date_trunc, username, b.sum
+            ORDER BY a.date_trunc
+        `,
         [userId, startDate, endDate]
       )
       .then(async (res) => {
@@ -168,47 +215,6 @@ module.exports = (db) => {
       })
       .catch((err) => console.error(err));
   };
-
-  // const displayUserData = (
-  //   userId,
-  //   startDate,
-  //   endDate,
-  //   userChoice,
-  //   getFollowers
-  // ) => {
-  //   // receive getFollowers (boolean) - if true, getFollowers false get only user
-  //   // based on getFollowers result, call getFollowers
-
-  //   return db
-  //     .query(
-  //       `
-  //   SELECT date_trunc('day',date), SUM(recipes.${userChoice}) FROM recipes
-  //   JOIN dates on recipe_id = recipes.id
-  //   WHERE user_id = $1 AND date BETWEEN $2 AND $3
-  //   GROUP BY date_trunc('day', date)
-  //   ORDER BY date_trunc
-  //   `,
-  //       [userId, startDate, endDate]
-  //     )
-  //     .then(async (res) => {
-  //       const followers =
-  //         getFollowers &&
-  //         (await getFollowingUsers(userId).then((result) =>
-  //           Promise.all(
-  //             result.map((follower) =>
-  //               displayUserData(
-  //                 follower.follow_id,
-  //                 startDate,
-  //                 endDate,
-  //                 userChoice
-  //               )
-  //             )
-  //           )
-  //         ));
-  //       return { userData: res.rows, followers, userId }; // returned object includes user data AND followers
-  //     })
-  //     .catch((err) => console.error(err));
-  // };
 
   // *********** HELPER FUNCTIONS FOR HANDLING FAVOURITES ************
   const getFavourites = (userId) => {
@@ -385,6 +391,7 @@ module.exports = (db) => {
     login,
     getAllUsers,
     getFollowingUsers,
+    getFollowingUsername,
     searchForUser,
     toggleFollower,
     displayUserData,
