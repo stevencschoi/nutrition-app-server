@@ -15,7 +15,7 @@ const bcrypt = require("bcrypt");
 const io = require("socket.io")(server);
 
 // listen for socket connection
-io.on("connection", (client) => {
+io.on("connection", client => {
   console.log("A user connected");
   // when receiving this message type, emit update message
   client.on("new", () => {
@@ -71,20 +71,18 @@ app.put("/register", function (req, res) {
     return res.status(400).send("Bad request");
   } else {
     let { username, first_name, last_name, email, password, avatar } = req.body;
-    console.log("req.body:", req.body);
     if (!avatar) {
       avatar =
         "https://cdn.dribbble.com/users/2319/screenshots/1658343/knife_and_fork.png";
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
-    console.log("Hashed password:", hashedPassword);
 
     databaseHelperFunctions
       .register(username, first_name, last_name, email, password, avatar)
       // .register(username, first_name, last_name, email, hashedPassword, avatar)
-      .then((data) => res.json(data))
-      .catch((err) => console.error(err));
+      .then(data => res.json(data))
+      .catch(err => console.error(err));
   }
 });
 
@@ -93,19 +91,11 @@ app.post("/login", (req, res) => {
 
   databaseHelperFunctions
     .login(userId, password)
-    .then((user) => {
+    .then(user => {
       if (!user[0]) {
         // if user does not exist, throw error
         return res.status(400).send("Bad response");
       } else {
-        console.log(
-          "From login: User ID",
-          user[0].id,
-          "First name",
-          user[0].first_name,
-          "Password",
-          user[0].password
-        );
         // if (bcrypt.compareSync(password, user[0].password)) {
         req.session.userId = user[0].id;
         req.session.first_name = user[0].first_name;
@@ -113,11 +103,10 @@ app.post("/login", (req, res) => {
         // }
       }
     })
-    .catch((err) => res.send(err));
+    .catch(err => res.send(err));
 });
 
 app.post("/logout", (req, res) => {
-  console.log("hitting logout route");
   req.session = null;
   res.redirect("/");
 });
