@@ -1,15 +1,16 @@
 module.exports = (db) => {
   // *********** HELPER FUNCTIONS FOR USER ROUTES ************
-  const verifyUser = (userId) => {
+  const checkUsername = (username) => {
     return db
       .query(
         `
-    SELECT * FROM users
-    WHERE username = $1`,
+      SELECT * FROM users
+      WHERE username = $1
+      `,
         [username]
       )
       .then((res) => {
-        res.rows[0] ? true : false;
+        return res.rows;
       })
       .catch((err) => console.error(err));
   };
@@ -386,7 +387,7 @@ module.exports = (db) => {
   };
 
   return {
-    verifyUser,
+    checkUsername,
     register,
     login,
     getAllUsers,

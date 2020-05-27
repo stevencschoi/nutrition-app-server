@@ -79,9 +79,18 @@ app.put("/register", function (req, res) {
     const hashedPassword = bcrypt.hashSync(password, 10);
 
     databaseHelperFunctions
-      .register(username, first_name, last_name, email, password, avatar)
-      // .register(username, first_name, last_name, email, hashedPassword, avatar)
-      .then(data => res.json(data))
+      .checkUsername(username)
+      .then(name => {
+        if (name[0]) {
+          // if username exists, throw error
+          return res.status(400).send("Bad response");
+        } else {
+          databaseHelperFunctions
+            .register(username, first_name, last_name, email, password, avatar)
+            // .register(username, first_name, last_name, email, hashedPassword, avatar)
+            .then(data => res.json(data))
+        }
+      })
       .catch(err => console.error(err));
   }
 });
