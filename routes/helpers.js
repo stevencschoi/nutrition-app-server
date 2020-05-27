@@ -5,7 +5,7 @@ module.exports = (db) => {
       .query(
         `
       SELECT * FROM users
-      WHERE username = $1
+      WHERE LOWER(username) = $1
       `,
         [username]
       )

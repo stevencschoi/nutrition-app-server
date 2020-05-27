@@ -62,37 +62,28 @@ app.use("/day", dayRoutes(databaseHelperFunctions));
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
   // create & store user info
-  // conditionals if empty strings entered
-  if (
-    req.body.username === "" ||
-    req.body.email === "" ||
-    req.body.password === ""
-  ) {
-    return res.status(400).send("Bad request");
-  } else {
-    let { username, first_name, last_name, email, password, avatar } = req.body;
-    if (!avatar) {
-      avatar =
-        "https://cdn.dribbble.com/users/2319/screenshots/1658343/knife_and_fork.png";
-    }
-
-    const hashedPassword = bcrypt.hashSync(password, 10);
-
-    databaseHelperFunctions
-      .checkUsername(username)
-      .then(name => {
-        if (name[0]) {
-          // if username exists, throw error
-          return res.status(400).send("Bad response");
-        } else {
-          databaseHelperFunctions
-            .register(username, first_name, last_name, email, password, avatar)
-            // .register(username, first_name, last_name, email, hashedPassword, avatar)
-            .then(data => res.json(data))
-        }
-      })
-      .catch(err => console.error(err));
+  let { username, first_name, last_name, email, password, avatar } = req.body;
+  if (!avatar) {
+    avatar =
+      "https://cdn.dribbble.com/users/2319/screenshots/1658343/knife_and_fork.png";
   }
+
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  databaseHelperFunctions
+    .checkUsername(username.toLowerCase())
+    .then(user => {
+      if (user[0]) {
+        // if username exists, throw error
+        return res.status(400).send("Bad response");
+      } else {
+        databaseHelperFunctions
+          .register(username, first_name, last_name, email, password, avatar)
+          // .register(username, first_name, last_name, email, hashedPassword, avatar)
+          .then(data => res.json(data))
+      }
+    })
+    .catch(err => console.error(err));
 });
 
 app.post("/login", (req, res) => {
