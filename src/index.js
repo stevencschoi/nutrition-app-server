@@ -78,7 +78,6 @@ app.put("/register", function (req, res) {
         return res.status(400).send("Bad response");
       } else {
         databaseHelperFunctions
-          // .register(username, first_name, last_name, email, password, avatar)
           .register(username, first_name, last_name, email, hashedPassword, avatar)
           .then(data => res.json(data))
       }
@@ -86,53 +85,25 @@ app.put("/register", function (req, res) {
     .catch(err => console.error(err));
 });
 
-// app.post("/login", (req, res) => {
-//   const { userId, password } = req.body;
-
-//   databaseHelperFunctions
-//     .login(userId, password)
-//     .then(user => {
-//       if (!user[0]) {
-//         // if user does not exist, throw error
-//         return res.status(400).send("Bad response");
-//       } else {
-//         // if (bcrypt.compareSync(password, user[0].password)) {
-//         req.session.userId = user[0].id;
-//         req.session.first_name = user[0].first_name;
-//         res.json(user[0]);
-//         // }
-//       }
-//     })
-//     .catch(err => res.send(err));
-// });
-
-
 app.post("/login", (req, res) => {
-  const { userId, password } = req.body;
+  const { username, password } = req.body;
 
   databaseHelperFunctions
-    // this password will not be found!  it is saved as hashed password
-    // .login(userId, password)
-    
-    //use this instead
-    .checkUsername(userId.toLowerCase())
+    .checkUsername(username.toLowerCase())
     .then(user => {
       if (!user[0]) {
         // if user does not exist, throw error
         return res.status(400).send("Bad response");
       } else if ((user[0]) && bcrypt.compareSync(password, user[0].password)) {
-        req.session.userId = user[0].id;
-        req.session.first_name = user[0].first_name;
-        res.json(user[0]);
+          req.session.userId = user[0].id;
+          req.session.first_name = user[0].first_name;
+          res.json(user[0]);
+      } else if ((user[0]) && !bcrypt.compareSync(password, user[0].password)) {
+          return res.status(400).send("Bad response");
       }
     })
     .catch(err => res.send(err));
 });
-
-
-
-
-
 
 app.post("/logout", (req, res) => {
   req.session = null;

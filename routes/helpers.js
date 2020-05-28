@@ -33,22 +33,6 @@ module.exports = (db) => {
       .catch((err) => console.error(err));
   };
 
-  const login = (userId, password) => {
-    return db
-      .query(
-        `
-      SELECT * FROM users
-      WHERE username = $1
-      AND password = $2
-      `,
-        [userId, password]
-      )
-      .then((res) => {
-        return res.rows;
-      })
-      .catch((err) => console.error(err));
-  };
-
   // *********** HELPER FUNCTIONS FOR FOLLOWING USERS ************
   const getAllUsers = (userId) => {
     return db
@@ -389,7 +373,6 @@ module.exports = (db) => {
   return {
     checkUsername,
     register,
-    login,
     getAllUsers,
     getFollowingUsers,
     getFollowingUsername,
