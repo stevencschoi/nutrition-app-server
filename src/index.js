@@ -62,45 +62,44 @@ app.use("/day", dayRoutes(databaseHelperFunctions));
 // ******************** REGISTER, LOGIN, LOGOUT ********************
 app.put("/register", function (req, res) {
   // create & store user info
-  // conditionals if empty strings entered
-  if (
-    req.body.username === "" ||
-    req.body.email === "" ||
-    req.body.password === ""
-  ) {
-    return res.status(400).send("Bad request");
-  } else {
-    let { username, first_name, last_name, email, password, avatar } = req.body;
-    if (!avatar) {
-      avatar =
-        "https://cdn.dribbble.com/users/2319/screenshots/1658343/knife_and_fork.png";
-    }
-
-    const hashedPassword = bcrypt.hashSync(password, 10);
-
-    databaseHelperFunctions
-      .register(username, first_name, last_name, email, password, avatar)
-      // .register(username, first_name, last_name, email, hashedPassword, avatar)
-      .then(data => res.json(data))
-      .catch(err => console.error(err));
+  let { username, first_name, last_name, email, password, avatar } = req.body;
+  if (!avatar) {
+    avatar =
+      "https://cdn.dribbble.com/users/2319/screenshots/1658343/knife_and_fork.png";
   }
+
+  const hashedPassword = bcrypt.hashSync(password, 10);
+
+  databaseHelperFunctions
+    .checkUsername(username.toLowerCase())
+    .then(user => {
+      if (user[0]) {
+        // if username exists, throw error
+        return res.status(400).send("Bad response");
+      } else {
+        databaseHelperFunctions
+          .register(username, first_name, last_name, email, hashedPassword, avatar)
+          .then(data => res.json(data))
+      }
+    })
+    .catch(err => console.error(err));
 });
 
 app.post("/login", (req, res) => {
-  const { userId, password } = req.body;
+  const { username, password } = req.body;
 
   databaseHelperFunctions
-    .login(userId, password)
+    .checkUsername(username.toLowerCase())
     .then(user => {
       if (!user[0]) {
         // if user does not exist, throw error
         return res.status(400).send("Bad response");
-      } else {
-        // if (bcrypt.compareSync(password, user[0].password)) {
-        req.session.userId = user[0].id;
-        req.session.first_name = user[0].first_name;
-        res.json(user[0]);
-        // }
+      } else if ((user[0]) && bcrypt.compareSync(password, user[0].password)) {
+          req.session.userId = user[0].id;
+          req.session.first_name = user[0].first_name;
+          res.json(user[0]);
+      } else if ((user[0]) && !bcrypt.compareSync(password, user[0].password)) {
+          return res.status(400).send("Bad response");
       }
     })
     .catch(err => res.send(err));
